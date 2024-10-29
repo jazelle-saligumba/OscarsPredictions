@@ -1,0 +1,46 @@
+---
+title: "MATH 154 - Spotify Project Proposal"
+authors: "Jazelle Saligumba, Kellie Au, Kartika Santoso"
+subtitle: "due on Wednesday, October 30, 2024"
+format: pdf
+execute:
+  warning: false
+  message: false
+---
+
+1. Group Members
+
+- Jazelle Saligumba - Facilitator, Director of Research
+- Kellie Au - Task Manager, Reporter
+- Kartika Santoso - Director of Computation, Project Manager
+
+2. Title: Concert Setlist Recommendations via Spotify Metrics
+
+3. Purpose
+
+What does the creation of a tour setlist look like using data? While there are many factors to consider such as popularity, a new album to promote, according to the BBC, even established artists, such as Charli XCX, create their song list ‘based on feeling’.  However, this can run into problems such as artists having to switch their setlist half way through tours due to audience reciprocation. By using data, artists can be informed by quantitative metrics to create their setlists. 
+
+4. Data
+
+We will be using the Spotify API through the R package spotifyr (a wrapper for the Spotify API) to gather data. We will analyze setlists from successful tours of the top 25 artists in a genre. To do this, we will first come up with the list of artists, then find a playlist on spotify of their recent tour’s setlist. We will then access the audio features of each track on each playlist and put this together into one dataset of all the tracks on these artists’ setlists.
+
+Example call to API to get tracks on [Taylor Swift's Eras tour setlist](https://open.spotify.com/playlist/37i9dQZF1DX0D996ZXujBy?si=fdd380b4168c4ffd): 
+```{r eval=FALSE}
+library(spotifyr)
+
+eras <- get_playlist_audio_features(
+    "spotify", 
+    playlist_uris = c("37i9dQZF1DX0D996ZXujBy"), 
+    access_token # spotify developer credentials
+)
+```
+
+There are public playlists of setlists that we can access using the API and get a dataset of all the songs in the playlist, with their features (see 5. variables).
+
+5. Variables
+
+Acousticness, danceability, energy, instrumentalness, key, liveness, loudness, mode, popularity, speechiness, tempo, time signature, valence
+
+6. End Product
+
+We hope to achieve two things in our project. First, we want to analyze trends in the breakdowns of setlists of current popular artists in different genres. We then want to use these trends to create a process that allows a user to input any artist and get a curated sample setlist that helps both artists and fans. Artists can build off of these data-driven sample setlists as they plan their tours and fans can use this tool to help prepare for upcoming concerts.
