@@ -19,5 +19,5 @@ Our biggest issue is that we slightly changed our scope which may change how our
 
 **What are the elements from outside of the course, if any, that you plan to incorporate into your project?**
 
-We plan to create a Shiny App or site that allows users to log in with their Spotify login, input an artist, and let Spotify create a playlist based on our hardcoded recommendations for the artist's ideal tour setlist. If so, we will either learn how to use RShiny or working with Java, CSS, and HTML to make our site. 
+We plan to create a Shiny App or site that allows users to log in with their Spotify login, input an artist, and let Spotify create a playlist based on our hardcoded recommendations for the artist's ideal tour setlist. If so, we will either learn how to use RShiny or work with Java, CSS, and HTML to make our site. 
 
