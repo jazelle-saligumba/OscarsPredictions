@@ -10,11 +10,14 @@ execute:
 
 Have you already collected, or do you have access to, all of the data that you will need in order to complete your project? If not, please estimate the percentage of the data that you have, describe any issues that you are having, and what your plan is for getting the rest of the data.
 
+We have access to all of the data we will need to complete our project. Using Wikipedia's article of top twenty grossing tours, we have pulled the data using Spotifyr and Spotify API to begin analyzing the tours' variables. 
 
 
 What is the single biggest unresolved issue you are having? Please describe it briefly, and what your plan is for resolving this issue.
 
-
+Our biggest issue is that we slightly changed our scope which may change how our summaries of the tours' variables play out. We originally anticipated using the top 25 tours of pop artists, but since pop as a genre is subjective, we are now using a dataset of the top twenty grossing tours. However, this comes with the new territory of analyzing artists of varying genres -- from pop to thrash metal. Because of this, we theorize that we will have higher variance within our setlists' variable summaries. If our summaries show no correlation, then we will mutate a column to tag each artist and their genres to analyze subsets of the data based on genres. We will also need to anticipate working with setlists of different durations and how we can normalize the data. Our current plan is to also mutate a column to identify a song's placement within the setlist by dividing the index of the song to the length of the setlist. 
 
 What are the elements from outside of the course, if any, that you plan to incorporate into your project?
+
+We plan to create a Shiny App or site that allows users to log in with their Spotify login, input an artist, and let Spotify create a playlist based on our hardcoded recommendations for the artist's ideal tour setlist. If so, we will either learn how to use RShiny or working with Java, CSS, and HTML to make our site. 
 
