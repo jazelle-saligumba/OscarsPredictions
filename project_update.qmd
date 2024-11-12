@@ -1,0 +1,20 @@
+---
+title: "MATH 154 - Spotify Project Proposal"
+authors: "Jazelle Saligumba, Kellie Au, Kartika Santoso"
+subtitle: "due on Wednesday, November 13, 2024"
+format: pdf
+execute:
+  warning: false
+  message: false
+--- 
+
+Have you already collected, or do you have access to, all of the data that you will need in order to complete your project? If not, please estimate the percentage of the data that you have, describe any issues that you are having, and what your plan is for getting the rest of the data.
+
+
+
+What is the single biggest unresolved issue you are having? Please describe it briefly, and what your plan is for resolving this issue.
+
+
+
+What are the elements from outside of the course, if any, that you plan to incorporate into your project?
+
