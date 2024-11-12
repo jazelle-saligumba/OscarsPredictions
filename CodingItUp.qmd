@@ -18,3 +18,32 @@ Sticky & Sweet Tour (Madonna): 5sE73Nv3vJ1xaFxR9oL4z6 ***NOTE: THIS ONE IS AN AL
 Beautiful Trauma World Tour (P!nk): 0IOqgNJX3k9aPeLMIYhpxh
 The Joshua Tree Tours 2017 & 2019 (U2): 4jpUeNiMgahRfNlAde3Shw
 Vertigo Tour (U2): 2TDIyyayjko0cnS00459ui
+
+Creating function that can take a SpotifyID and wrangle the data
+
+```{r}
+library(spotifyr)
+library(dplyr)
+```
+
+```{r}
+Sys.setenv(SPOTIFY_CLIENT_ID = "3ab18e96b66d48ab9310c33a46d7475c")
+Sys.setenv(SPOTIFY_CLIENT_SECRET = "c2e51676eb694d56bd8a0308f5974347")
+
+# fill in with personal client_ID and client_secret
+#Sys.setenv(SPOTIFY_CLIENT_ID = 'xxxxxxxxxxxxxxxxxxxxx')
+#Sys.setenv(SPOTIFY_CLIENT_SECRET = 'xxxxxxxxxxxxxxxxxxxxx')
+
+access_token <- get_spotify_access_token()
+```
+
+```{r}
+eras <- get_playlist_audio_features(
+    "spotify", 
+    playlist_uris = c("37i9dQZF1DX0D996ZXujBy"), 
+    access_token # spotify developer credentials
+    ) |>
+  mutate(setlist_song_num = row_number(),
+         prop_thru_set = setlist_song_num / n())
+  
+```
