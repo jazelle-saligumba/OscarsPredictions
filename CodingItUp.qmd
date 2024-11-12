@@ -19,11 +19,11 @@ Beautiful Trauma World Tour (P!nk): 0IOqgNJX3k9aPeLMIYhpxh
 The Joshua Tree Tours 2017 & 2019 (U2): 4jpUeNiMgahRfNlAde3Shw
 Vertigo Tour (U2): 2TDIyyayjko0cnS00459ui
 
-Creating function that can take a SpotifyID and wrangle the data
 
 ```{r}
 library(spotifyr)
 library(dplyr)
+library(purrr)
 ```
 
 ```{r}
@@ -34,10 +34,20 @@ library(dplyr)
 access_token <- get_spotify_access_token()
 ```
 
+Logging all of our spotifyIDs into one vector:
 ```{r}
-eras <- get_playlist_audio_features(
+playlist_ids <- c(c("37i9dQZF1DX0D996ZXujBy"), c("08iPDhTh0lVHhJfb4PlYg7"), c("35xTEkkxtb6HG5Ekrs3Weq"), c("0z7jpWUKsXGJKAr1jPT6TJ"),
+                  c("2i4RrDDRrjCiZPK7u0mC6l"), c("0nGAxpspEuFVN41NJtsbqd"), c("54SV4xiry4qbOhWhStFuRk"), c("0JTPSLTRlueygxYUZBZsxK"),
+                  c("59HEFq5MTQnL15aMiy256x"), c("42KCvNJIUSdzAZyZSPSxbE"), c("2Q1bREtYAvn2bA2VCV2Lws"), c("7gjMetNaSzrULiFfg82o7K"),
+                  c("5s0m7X05Le1APAVOMXozVS"), c("6yMtPXxICqPJzqnX11dnvD"), c("5fkZFNe5tSzZE3WrxwxzhC"), c("0IOqgNJX3k9aPeLMIYhpxh"),
+                  c("4jpUeNiMgahRfNlAde3Shw"), c("2TDIyyayjko0cnS00459ui"))
+```
+
+```{r}
+wrangle_data_func <- function(spotifyid){
+  get_playlist_audio_features(
     "spotify", 
-    playlist_uris = c("37i9dQZF1DX0D996ZXujBy"), 
+    playlist_uris = spotifyid, 
     access_token # spotify developer credentials
     ) |>
   # take out unnecessary columns
@@ -49,5 +59,8 @@ eras <- get_playlist_audio_features(
   # create new cols to tell us where we are in the setlist
   mutate(setlist_song_num = row_number(),
          prop_thru_set = setlist_song_num / n())
-  
+}
+
+# as list of separate data, use `map_df()` if want one big list
+all_playlists <- map(playlist_ids, wrangle_data_func)
 ```
