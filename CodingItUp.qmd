@@ -1,47 +1,79 @@
-The Eras Tour (Taylor Swift): 37i9dQZF1DX0D996ZXujBy
-Music of the Spheres Tour (Coldplay): 08iPDhTh0lVHhJfb4PlYg7
-Farewell Yellow Brick Road (Elton John): 35xTEkkxtb6HG5Ekrs3Weq
-Divide Tour (Ed Sheeran): 0z7jpWUKsXGJKAr1jPT6TJ
-360 degrees tour (U2): 2i4RrDDRrjCiZPK7u0mC6l
-Love On Tour (Harry Styles): 0nGAxpspEuFVN41NJtsbqd
-+-=÷x Tour (Ed Sheeran): 54SV4xiry4qbOhWhStFuRk
-Not in This Lifetime... Tour (Guns n Roses): 0JTPSLTRlueygxYUZBZsxK
-Renaissance Tour (Beyonce): 59HEFq5MTQnL15aMiy256x
-A Bigger Bang Tour (The Rolling Stones): 42KCvNJIUSdzAZyZSPSxbE
-No Filter Tour (The Rolling Stones): 2Q1bREtYAvn2bA2VCV2Lws
-A Head Full of Dreams Tour (Coldplay): 7gjMetNaSzrULiFfg82o7K
-Summer Carnival (P!nk): 5s0m7X05Le1APAVOMXozVS
-The Wall Live (Roger Waters): 4bwDALUCGomY6xRJRvo3Un
-Black Ice World Tour (AC/DC): 6yMtPXxICqPJzqnX11dnvD ***includes encore***
-WorldWired Tour (Metallica): 5fkZFNe5tSzZE3WrxwxzhC
-Sticky & Sweet Tour (Madonna): 0Y4Kj7njDZ6An4SSi9sSr2
-Beautiful Trauma World Tour (P!nk): 0IOqgNJX3k9aPeLMIYhpxh
-The Joshua Tree Tours 2017 & 2019 (U2): 4jpUeNiMgahRfNlAde3Shw
-Vertigo Tour (U2): 2TDIyyayjko0cnS00459ui
+Setlists: 
+- The Eras Tour (Taylor Swift): 37i9dQZF1DX0D996ZXujBy
+- Music of the Spheres Tour (Coldplay): 08iPDhTh0lVHhJfb4PlYg7
+- Farewell Yellow Brick Road (Elton John): 35xTEkkxtb6HG5Ekrs3Weq
+- Divide Tour (Ed Sheeran): 0z7jpWUKsXGJKAr1jPT6TJ
+- 360 degrees tour (U2): 2i4RrDDRrjCiZPK7u0mC6l
+- Love On Tour (Harry Styles): 0nGAxpspEuFVN41NJtsbqd
+- +-=÷x Tour (Ed Sheeran): 54SV4xiry4qbOhWhStFuRk
+- Not in This Lifetime... Tour (Guns n Roses): 0JTPSLTRlueygxYUZBZsxK
+- Renaissance Tour (Beyonce): 59HEFq5MTQnL15aMiy256x
+- A Bigger Bang Tour (The Rolling Stones): 42KCvNJIUSdzAZyZSPSxbE
+- No Filter Tour (The Rolling Stones): 2Q1bREtYAvn2bA2VCV2Lws
+- A Head Full of Dreams Tour (Coldplay): 7gjMetNaSzrULiFfg82o7K
+- Summer Carnival (P!nk): 5s0m7X05Le1APAVOMXozVS
+- The Wall Live (Roger Waters): 4bwDALUCGomY6xRJRvo3Un
+- Black Ice World Tour (AC/DC): 6yMtPXxICqPJzqnX11dnvD ***includes encore***
+- WorldWired Tour (Metallica): 5fkZFNe5tSzZE3WrxwxzhC
+- Sticky & Sweet Tour (Madonna): 0Y4Kj7njDZ6An4SSi9sSr2
+- Beautiful Trauma World Tour (P!nk): 0IOqgNJX3k9aPeLMIYhpxh
+- The Joshua Tree Tours 2017 & 2019 (U2): 4jpUeNiMgahRfNlAde3Shw
+- Vertigo Tour (U2): 2TDIyyayjko0cnS00459ui
+
+
+Artists: 
+- Taylor Swift: 06HL4z0CvFAxyc27GXpf02
+- Coldplay: 4gzpq5DPGxSnKTe4SA8HAU
+- Elton John: 3PhoLpVuITZKcymswpck5b
+- Ed Sheeran: 6eUKZXaKkcviH0Ku9w2n3V
+- U2: 51Blml2LZPmy7TTiAg47vQ
+- Harry Styles: 6KImCVD70vtIoJWnq6nGn3
+- Guns N' Roses: 3qm84nBOXUEQ2vnTfUTTFC
+- Beyonce: 6vWDO969PvNqNYHIOW5v0m
+- The Rolling Stones: 22bE4uQ6baNwSHPVcDxLCe
+- P!nk: 1KCSPY1glIKqW2TotWuXOR
+- Roger Waters: 40DqL6Tv84cKT2pH2NMs9r
+- AC/DC: 711MCceyCBcFnzjGY4Q7Un
+- Metallica: 2ye2Wgw4gimLv2eAKyk1NB
+- Madonna: 6tbjWDEIzxoDsBA1FuhfPW
 
 
 ```{r}
 library(spotifyr)
 library(dplyr)
 library(purrr)
+library(tidyverse)
+library(rlang)
 ```
 
 ```{r}
 # fill in with personal client_ID and client_secret
-#Sys.setenv(SPOTIFY_CLIENT_ID = 'xxxxxxxxxxxxxxxxxxxxx')
-#Sys.setenv(SPOTIFY_CLIENT_SECRET = 'xxxxxxxxxxxxxxxxxxxxx')
+Sys.setenv(SPOTIFY_CLIENT_ID = '')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = '')
 
 access_token <- get_spotify_access_token()
 ```
 
 Logging all of our spotifyIDs into one vector:
+
 ```{r}
-playlist_ids <- c(c("37i9dQZF1DX0D996ZXujBy"), c("08iPDhTh0lVHhJfb4PlYg7"), c("35xTEkkxtb6HG5Ekrs3Weq"), c("0z7jpWUKsXGJKAr1jPT6TJ"),
-                  c("2i4RrDDRrjCiZPK7u0mC6l"), c("0nGAxpspEuFVN41NJtsbqd"), c("54SV4xiry4qbOhWhStFuRk"), c("0JTPSLTRlueygxYUZBZsxK"),
-                  c("59HEFq5MTQnL15aMiy256x"), c("42KCvNJIUSdzAZyZSPSxbE"), c("2Q1bREtYAvn2bA2VCV2Lws"), c("7gjMetNaSzrULiFfg82o7K"),
-                  c("5s0m7X05Le1APAVOMXozVS"), c("6yMtPXxICqPJzqnX11dnvD"), c("5fkZFNe5tSzZE3WrxwxzhC"), c("0IOqgNJX3k9aPeLMIYhpxh"),
-                  c("4jpUeNiMgahRfNlAde3Shw"), c("2TDIyyayjko0cnS00459ui"))
+playlist_ids <- c(
+  "37i9dQZF1DX0D996ZXujBy", "08iPDhTh0lVHhJfb4PlYg7", "35xTEkkxtb6HG5Ekrs3Weq",
+  "0z7jpWUKsXGJKAr1jPT6TJ", "2i4RrDDRrjCiZPK7u0mC6l", "0nGAxpspEuFVN41NJtsbqd",
+  "54SV4xiry4qbOhWhStFuRk", "0JTPSLTRlueygxYUZBZsxK", "59HEFq5MTQnL15aMiy256x", 
+  "42KCvNJIUSdzAZyZSPSxbE", "42KCvNJIUSdzAZyZSPSxbE", "2Q1bREtYAvn2bA2VCV2Lws",
+  "7gjMetNaSzrULiFfg82o7K", "5s0m7X05Le1APAVOMXozVS", "4bwDALUCGomY6xRJRvo3Un",
+  "6yMtPXxICqPJzqnX11dnvD", "5fkZFNe5tSzZE3WrxwxzhC", "0IOqgNJX3k9aPeLMIYhpxh", 
+  "4jpUeNiMgahRfNlAde3Shw", "2TDIyyayjko0cnS00459ui")
+
+artist_ids <- c(
+  "06HL4z0CvFAxyc27GXpf02", "4gzpq5DPGxSnKTe4SA8HAU", "3PhoLpVuITZKcymswpck5b", "6eUKZXaKkcviH0Ku9w2n3V", 
+  "51Blml2LZPmy7TTiAg47vQ", "6KImCVD70vtIoJWnq6nGn3", "3qm84nBOXUEQ2vnTfUTTFC", "6vWDO969PvNqNYHIOW5v0m", 
+  "22bE4uQ6baNwSHPVcDxLCe", "1KCSPY1glIKqW2TotWuXOR", "40DqL6Tv84cKT2pH2NMs9r", "711MCceyCBcFnzjGY4Q7Un", 
+  "2ye2Wgw4gimLv2eAKyk1NB", "6tbjWDEIzxoDsBA1FuhfPW"
+)
 ```
+
 
 ```{r}
 wrangle_data_func <- function(spotifyid){
@@ -64,3 +96,40 @@ wrangle_data_func <- function(spotifyid){
 # as list of separate data, use `map_df()` if want one big list
 all_playlists <- map(playlist_ids, wrangle_data_func)
 ```
+
+```{r}
+all_data <- map_df(playlist_ids, wrangle_data_func)
+```
+
+
+### Visualize audio features
+```{r}
+visualize_feature <- function(data, feature) {
+  data |>
+    ggplot(aes(x = prop_thru_set, y = data[[feature]])) + 
+    geom_point() +
+    geom_smooth(se = FALSE) + 
+    # add geom_hline for mean feature value for artist
+    xlab("Set Progress") + 
+    ylab(feature) + 
+    facet_wrap(~ playlist_name)
+}
+```
+
+```{r}
+visualize_feature(all_data, "danceability")
+```
+
+```{r}
+get_artist_mean_features <- function(artist_df, feature) {
+  mean(artist_df[[feature]])
+}
+
+get_artist_mean_feature(get_artist_audio_features("Taylor Swift"), "energy")
+```
+
+# TODO: make a df of artist mean audio features (ex. mean danceability across all the artist's songs) to compare set danceability to average? 
+
+
+
+
