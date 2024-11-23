@@ -123,9 +123,9 @@ wrangle_data_func <- function(spotifyid){
   # take out unnecessary columns
   select(-c(playlist_owner_id, added_at, is_local, primary_color, added_by.href, added_by.id, added_by.type, added_by.uri, 
             added_by.external_urls.spotify,track.preview_url, track.available_markets, track.type, track.episode, track.track,
-            track.disc_number, track.href, track.is_local, track.album.available_markets, track.album.type, track.album.album_type,
-            track.album.href, track.album.release_date_precision, track.album.artists, track.album.external_urls.spotify,
-            track.external_ids.isrc, track.external_urls.spotify, video_thumbnail.url )) |>
+            track.disc_number, track.href, track.is_local, track.album.available_markets, track.album.type,
+            track.album.album_type, track.album.href, track.album.release_date_precision, track.album.artists,
+            track.album.external_urls.spotify, track.external_ids.isrc, track.external_urls.spotify, video_thumbnail.url )) |>
   # create new cols to tell us where we are in the setlist
   mutate(setlist_song_num = row_number(),
          prop_thru_set = setlist_song_num / n())
