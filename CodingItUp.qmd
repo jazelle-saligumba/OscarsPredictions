@@ -61,9 +61,9 @@ playlist_ids <- c(
   "37i9dQZF1DX0D996ZXujBy", "08iPDhTh0lVHhJfb4PlYg7", "35xTEkkxtb6HG5Ekrs3Weq",
   "0z7jpWUKsXGJKAr1jPT6TJ", "2i4RrDDRrjCiZPK7u0mC6l", "0nGAxpspEuFVN41NJtsbqd",
   "54SV4xiry4qbOhWhStFuRk", "0JTPSLTRlueygxYUZBZsxK", "59HEFq5MTQnL15aMiy256x", 
-  "42KCvNJIUSdzAZyZSPSxbE", "42KCvNJIUSdzAZyZSPSxbE", "2Q1bREtYAvn2bA2VCV2Lws",
-  "7gjMetNaSzrULiFfg82o7K", "5s0m7X05Le1APAVOMXozVS", "4bwDALUCGomY6xRJRvo3Un",
-  "6yMtPXxICqPJzqnX11dnvD", "5fkZFNe5tSzZE3WrxwxzhC", "0IOqgNJX3k9aPeLMIYhpxh", 
+  "42KCvNJIUSdzAZyZSPSxbE", "2Q1bREtYAvn2bA2VCV2Lws", "7gjMetNaSzrULiFfg82o7K",
+  "5s0m7X05Le1APAVOMXozVS", "4bwDALUCGomY6xRJRvo3Un", "6yMtPXxICqPJzqnX11dnvD",
+  "5fkZFNe5tSzZE3WrxwxzhC", "0Y4Kj7njDZ6An4SSi9sSr2", "0IOqgNJX3k9aPeLMIYhpxh", 
   "4jpUeNiMgahRfNlAde3Shw", "2TDIyyayjko0cnS00459ui")
 
 artist_ids <- c(
