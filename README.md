@@ -25,8 +25,8 @@
 - add encore variable
 
 - [ ] compile new dataset of top 50 pop artists via billboard's top pop artists of the 21st century
-- [ ] compile new dataset of artists' mean audio features
-- [ ] find average offset of scores compared to artist's mean
+- [x] compile new dataset of artists' mean audio features
+- [x] find average offset of scores compared to artist's mean
 - [ ] mark inflection points
 - [ ] meet on sunday/monday and discuss findings and figure out what our numbers are throughout the setlist
 - [ ] setup web app

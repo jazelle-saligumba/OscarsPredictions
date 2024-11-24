@@ -20,7 +20,6 @@ Setlists:
 - The Joshua Tree Tours 2017 & 2019 (U2): 4jpUeNiMgahRfNlAde3Shw
 - Vertigo Tour (U2): 2TDIyyayjko0cnS00459ui
 
-
 Artists: 
 - Taylor Swift: 06HL4z0CvFAxyc27GXpf02
 - Coldplay: 4gzpq5DPGxSnKTe4SA8HAU
@@ -36,7 +35,6 @@ Artists:
 - AC/DC: 711MCceyCBcFnzjGY4Q7Un
 - Metallica: 2ye2Wgw4gimLv2eAKyk1NB
 - Madonna: 6tbjWDEIzxoDsBA1FuhfPW
-
 
 ```{r}
 library(spotifyr)
@@ -72,6 +70,46 @@ artist_ids <- c(
   "22bE4uQ6baNwSHPVcDxLCe", "1KCSPY1glIKqW2TotWuXOR", "40DqL6Tv84cKT2pH2NMs9r", "711MCceyCBcFnzjGY4Q7Un", 
   "2ye2Wgw4gimLv2eAKyk1NB", "6tbjWDEIzxoDsBA1FuhfPW"
 )
+
+artists <- list(
+  "Taylor Swift" = "06HL4z0CvFAxyc27GXpf02",
+  "Coldplay" = "4gzpq5DPGxSnKTe4SA8HAU",
+  "Elton John" = "3PhoLpVuITZKcymswpck5b",
+  "Ed Sheeran" = "6eUKZXaKkcviH0Ku9w2n3V",
+  "U2" = "51Blml2LZPmy7TTiAg47vQ",
+  "Harry Styles" = "6KImCVD70vtIoJWnq6nGn3",
+  "Guns N' Roses" = "3qm84nBOXUEQ2vnTfUTTFC",
+  "Beyoncé" = "6vWDO969PvNqNYHIOW5v0m",
+  "The Rolling Stones" = "22bE4uQ6baNwSHPVcDxLCe", 
+  "P!nk" = "1KCSPY1glIKqW2TotWuXOR", 
+  "Roger Waters" = "40DqL6Tv84cKT2pH2NMs9r",
+  "AC/DC" = "711MCceyCBcFnzjGY4Q7Un",
+  "Metallica" = "2ye2Wgw4gimLv2eAKyk1NB",
+  "Madonna" = "6tbjWDEIzxoDsBA1FuhfPW"
+)
+
+playlist_to_artist = list(
+  "37i9dQZF1DX0D996ZXujBy" = "Taylor Swift",
+  "08iPDhTh0lVHhJfb4PlYg7" = "Coldplay",
+  "35xTEkkxtb6HG5Ekrs3Weq" = "Elton John",
+  "0z7jpWUKsXGJKAr1jPT6TJ" = "Ed Sheeran",
+  "2i4RrDDRrjCiZPK7u0mC6l" = "U2",
+  "0nGAxpspEuFVN41NJtsbqd" = "Harry Styles", 
+  "54SV4xiry4qbOhWhStFuRk" = "Ed Sheeran",
+  "0JTPSLTRlueygxYUZBZsxK" = "Guns N' Roses",
+  "59HEFq5MTQnL15aMiy256x" = "Beyoncé",
+  "42KCvNJIUSdzAZyZSPSxbE" = "The Rolling Stones",
+  "2Q1bREtYAvn2bA2VCV2Lws" = "The Rolling Stones",
+  "7gjMetNaSzrULiFfg82o7K" = "Coldplay",
+  "5s0m7X05Le1APAVOMXozVS" = "P!nk",
+  "4bwDALUCGomY6xRJRvo3Un" = "Roger Waters",
+  "6yMtPXxICqPJzqnX11dnvD" = "AC/DC",
+  "5fkZFNe5tSzZE3WrxwxzhC" = "Metallica", 
+  "0Y4Kj7njDZ6An4SSi9sSr2" = "Madonna",
+  "0IOqgNJX3k9aPeLMIYhpxh" = "P!nk",
+  "4jpUeNiMgahRfNlAde3Shw" = "U2",
+  "2TDIyyayjko0cnS00459ui" = "U2"
+)
 ```
 
 
@@ -94,42 +132,68 @@ wrangle_data_func <- function(spotifyid){
 }
 
 # as list of separate data, use `map_df()` if want one big list
-all_playlists <- map(playlist_ids, wrangle_data_func)
+#all_playlists <- map(playlist_ids, wrangle_data_func)
+all_data <- map_df(playlist_ids, wrangle_data_func)
+```
+
+
+```{r}
+audio_features <- c(
+  "danceability", "energy", "key", "loudness", "mode", "speechiness", "acousticness", "instrumentalness", 
+  "liveness", "valence", "tempo", "duration_ms"
+)
 ```
 
 ```{r}
-all_data <- map_df(playlist_ids, wrangle_data_func)
+get_mean_artist_feature <- function(artist_df, feature) {
+  artist_df |>
+    summarize(!!paste0("mean_", feature) := mean(!!sym(feature))
+  )
+}
+
+get_mean_artist_features <- function(artist_id, features) {
+  artist_df <- get_artist_audio_features(artist_id)
+  return(map(features, partial(get_mean_artist_feature, artist_df = artist_df)) |> list_cbind())
+}
+```
+
+```{r}
+artists_data <- data.frame()
+
+for (artist in names(artists)) {
+  row <- get_mean_artist_features(artists[[artist]], audio_features)
+  row$artist <- artist
+  artists_data <- rbind(artists_data, row)
+}
 ```
 
 
 ### Visualize audio features
 ```{r}
+all_data <- all_data |>
+  mutate(artist = as.character(playlist_to_artist[as.character(playlist_id)])) |>
+  left_join(artists_data, by = "artist")
+```
+
+
+```{r}
 visualize_feature <- function(data, feature) {
+  mean_feature <- sym(paste0("mean_", feature))
+    
   data |>
     ggplot(aes(x = prop_thru_set, y = data[[feature]])) + 
+    # add geom_hline for mean feature value for artist
+    geom_hline(aes(yintercept = data[[mean_feature]], color = "red")) +
     geom_point() +
     geom_smooth(se = FALSE) + 
-    # add geom_hline for mean feature value for artist
     xlab("Set Progress") + 
     ylab(feature) + 
-    facet_wrap(~ playlist_name)
+    facet_wrap(~ playlist_name) + 
+    theme(legend.position = "none")
 }
 ```
 
 ```{r}
 visualize_feature(all_data, "danceability")
 ```
-
-```{r}
-get_artist_mean_features <- function(artist_df, feature) {
-  mean(artist_df[[feature]])
-}
-
-get_artist_mean_feature(get_artist_audio_features("Taylor Swift"), "energy")
-```
-
-# TODO: make a df of artist mean audio features (ex. mean danceability across all the artist's songs) to compare set danceability to average? 
-
-
-
 
