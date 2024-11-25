@@ -1,0 +1,107 @@
+Setlists: 
+- The Eras Tour (Taylor Swift): 37i9dQZF1DX0D996ZXujBy
+- Renaissance Tour (Beyonce): 59HEFq5MTQnL15aMiy256x
+- Anti World Tour (Rihanna): 7yyTfDGxCtnzy2wwWI6xYn
+- It's All A Blur (Drake): 5v88shNHPpzlGLVwMDJK7o
+- The Chromatica Ball Tour (Lady Gaga): 6wrz4RKtDDsCat6IAfkMsj
+- Piece of Me (Britney Spears): 7JokQIXFfBVzpMmJK9n2qa
+- Saint Pablo (Kanye West): 4XGapCuHdovO1gSHh33f3v
+- Justice (Justin Beiber): 1KaL7FQwS3O505agh3PEnH
+- Sweetener (Ariana Grande): 5gzzyY3BiAXrJXxG2eDRhX
+- Las Vegas Residency (Adele): 0VaEoCVKvxFnYae8fzOiAW
+
+
+Artists: 
+- Taylor Swift: 06HL4z0CvFAxyc27GXpf02
+- Beyonce: 6vWDO969PvNqNYHIOW5v0m
+- Rihanna: 5pKCCKE2ajJHZ9KAiaK11H
+- Drake: 3TVXtAsR1Inumwj472S9r4
+- Lady Gaga: 1HY2Jd0NmPuamShAr6KMms
+- Britney Spears: 26dSoYclwsYLMAKD3tpOr4
+- Kanye West: 5K4W6rqBFWDnAN6FQUkS6x
+- Justin Beiber: 1uNFoZAHBGtllmzznpCI3s
+- Ariana Grande: 66CXWjxzNUsdJxJ2JdwvnR
+- Adele: 4dpARuHxo51G3z768sgnrY
+
+
+
+```{r}
+library(spotifyr)
+library(dplyr)
+library(purrr)
+library(tidyverse)
+library(rlang)
+```
+
+```{r}
+# fill in with personal client_ID and client_secret
+Sys.setenv(SPOTIFY_CLIENT_ID = '8935ee956b9a413f871b9f369fbc2fbc')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = 'ab996cadfb4d4bc39db1f71a367b29fb')
+
+access_token <- get_spotify_access_token()
+```
+
+Logging all of our spotifyIDs into one vector:
+
+```{r}
+playlist_ids <- c(
+  "37i9dQZF1DX0D996ZXujBy", "59HEFq5MTQnL15aMiy256x", "7yyTfDGxCtnzy2wwWI6xYn",
+  "5v88shNHPpzlGLVwMDJK7o", "6wrz4RKtDDsCat6IAfkMsj", "7JokQIXFfBVzpMmJK9n2qa",
+  "4XGapCuHdovO1gSHh33f3v", "1KaL7FQwS3O505agh3PEnH", "5gzzyY3BiAXrJXxG2eDRhX",
+  "0VaEoCVKvxFnYae8fzOiAW"
+  )
+
+artist_ids <- c(
+  "06HL4z0CvFAxyc27GXpf02", "6vWDO969PvNqNYHIOW5v0m", "5pKCCKE2ajJHZ9KAiaK11H",
+  "3TVXtAsR1Inumwj472S9r4", "1HY2Jd0NmPuamShAr6KMms", "26dSoYclwsYLMAKD3tpOr4", 
+  "5K4W6rqBFWDnAN6FQUkS6x", "1uNFoZAHBGtllmzznpCI3s", "66CXWjxzNUsdJxJ2JdwvnR",
+  "4dpARuHxo51G3z768sgnrY"
+)
+```
+
+
+```{r}
+wrangle_data_func <- function(spotifyid){
+  get_playlist_audio_features(
+    "spotify", 
+    playlist_uris = spotifyid, 
+    access_token # spotify developer credentials
+    ) |>
+  # take out unnecessary columns
+  select(-c(playlist_owner_id, added_at, is_local, primary_color, added_by.href, added_by.id, added_by.type, added_by.uri, 
+            added_by.external_urls.spotify,track.preview_url, track.available_markets, track.type, track.episode, track.track,
+            track.disc_number, track.href, track.is_local, track.album.available_markets, track.album.type, track.album.album_type,
+            track.album.href, track.album.release_date_precision, track.album.artists, track.album.external_urls.spotify,
+            track.external_ids.isrc, track.external_urls.spotify, video_thumbnail.url )) |>
+  # create new cols to tell us where we are in the setlist
+  mutate(setlist_song_num = row_number(),
+         prop_thru_set = setlist_song_num / n())
+}
+
+# as list of separate data, use `map_df()` if want one big list
+all_playlists <- map(playlist_ids, wrangle_data_func)
+```
+
+```{r}
+all_data <- map_df(playlist_ids, wrangle_data_func)
+```
+
+
+
+### Visualize audio features
+```{r}
+visualize_feature <- function(data, feature) {
+  data |>
+    ggplot(aes(x = prop_thru_set, y = data[[feature]])) + 
+    geom_point() +
+    geom_smooth(se = FALSE) + 
+    # add geom_hline for mean feature value for artist
+    xlab("Set Progress") + 
+    ylab(feature) + 
+    facet_wrap(~ playlist_name)
+}
+```
+
+```{r}
+visualize_feature(all_data, "danceability")
+```
