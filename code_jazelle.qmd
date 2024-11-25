@@ -35,8 +35,8 @@ library(rlang)
 
 ```{r}
 # fill in with personal client_ID and client_secret
-Sys.setenv(SPOTIFY_CLIENT_ID = '8935ee956b9a413f871b9f369fbc2fbc')
-Sys.setenv(SPOTIFY_CLIENT_SECRET = 'ab996cadfb4d4bc39db1f71a367b29fb')
+Sys.setenv(SPOTIFY_CLIENT_ID = '')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = '')
 
 access_token <- get_spotify_access_token()
 ```
@@ -57,8 +57,33 @@ artist_ids <- c(
   "5K4W6rqBFWDnAN6FQUkS6x", "1uNFoZAHBGtllmzznpCI3s", "66CXWjxzNUsdJxJ2JdwvnR",
   "4dpARuHxo51G3z768sgnrY"
 )
-```
 
+artists <- list(
+  "Taylor Swift" = "06HL4z0CvFAxyc27GXpf02",
+  "Beyonce" = "6vWDO969PvNqNYHIOW5v0m",
+  "Rihanna" = "5pKCCKE2ajJHZ9KAiaK11H",
+  "Drake" = "3TVXtAsR1Inumwj472S9r4",
+  "Lady Gaga" = "1HY2Jd0NmPuamShAr6KMms",
+  "Britney Spears" = "26dSoYclwsYLMAKD3tpOr4",
+  "Kanye West" = "5K4W6rqBFWDnAN6FQUkS6x",
+  "Justin Beiber" = "1uNFoZAHBGtllmzznpCI3s",
+  "Ariana Grande" = "66CXWjxzNUsdJxJ2JdwvnR", 
+  "Adele" = "4dpARuHxo51G3z768sgnrY"
+)
+
+playlist_to_artist = list(
+  "37i9dQZF1DX0D996ZXujBy" = "Taylor Swift",
+  "59HEFq5MTQnL15aMiy256x" = "Beyonce",
+  "7yyTfDGxCtnzy2wwWI6xYn" = "Rihanna",
+  "5v88shNHPpzlGLVwMDJK7o" = "Drake",
+  "6wrz4RKtDDsCat6IAfkMsj" = "Lady Gaga",
+  "7JokQIXFfBVzpMmJK9n2qa" = "Britney Spears", 
+  "4XGapCuHdovO1gSHh33f3v" = "Kanye West",
+  "1KaL7FQwS3O505agh3PEnH" = "Justin Beiber",
+  "5gzzyY3BiAXrJXxG2eDRhX" = "Ariana Grande",
+  "0VaEoCVKvxFnYae8fzOiAW" = "Adele"
+)
+```
 
 ```{r}
 wrangle_data_func <- function(spotifyid){
@@ -79,29 +104,71 @@ wrangle_data_func <- function(spotifyid){
 }
 
 # as list of separate data, use `map_df()` if want one big list
-all_playlists <- map(playlist_ids, wrangle_data_func)
-```
-
-```{r}
+#all_playlists <- map(playlist_ids, wrangle_data_func)
 all_data <- map_df(playlist_ids, wrangle_data_func)
 ```
 
 
+```{r}
+audio_features <- c(
+  "danceability", "energy", "key", "loudness", "mode", "speechiness", "acousticness", "instrumentalness", 
+  "liveness", "valence", "tempo", "duration_ms"
+)
+```
+
+```{r}
+get_mean_artist_feature <- function(artist_df, feature) {
+  artist_df |>
+    summarize(!!paste0("mean_", feature) := mean(!!sym(feature))
+  )
+}
+
+get_mean_artist_features <- function(artist_id, features) {
+  artist_df <- get_artist_audio_features(artist_id)
+  return(map(features, partial(get_mean_artist_feature, artist_df = artist_df)) |> list_cbind())
+}
+```
+
+```{r}
+artists_data <- data.frame()
+
+for (artist in names(artists)) {
+  row <- get_mean_artist_features(artists[[artist]], audio_features)
+  row$artist <- artist
+  artists_data <- rbind(artists_data, row)
+}
+```
+
 
 ### Visualize audio features
 ```{r}
+all_data <- all_data |>
+  mutate(artist = as.character(playlist_to_artist[as.character(playlist_id)])) |>
+  left_join(artists_data, by = "artist")
+```
+
+
+```{r}
 visualize_feature <- function(data, feature) {
+  mean_feature <- sym(paste0("mean_", feature))
+    
   data |>
     ggplot(aes(x = prop_thru_set, y = data[[feature]])) + 
+    # add geom_hline for mean feature value for artist
+    geom_hline(aes(yintercept = data[[mean_feature]], color = "red")) +
     geom_point() +
     geom_smooth(se = FALSE) + 
-    # add geom_hline for mean feature value for artist
     xlab("Set Progress") + 
     ylab(feature) + 
-    facet_wrap(~ playlist_name)
+    facet_wrap(~ playlist_name) + 
+    theme(legend.position = "none")
 }
 ```
 
 ```{r}
 visualize_feature(all_data, "danceability")
 ```
+```{r}
+visualize_feature(all_data, "energy")
+```
+
