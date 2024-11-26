@@ -1,3 +1,5 @@
+Top 25 Pop Artists of the 21st Century via Billboard
+
 Setlists: 
 - The Eras Tour (Taylor Swift): 37i9dQZF1DX0D996ZXujBy
 - Renaissance Tour (Beyonce): 59HEFq5MTQnL15aMiy256x
@@ -9,7 +11,12 @@ Setlists:
 - Justice (Justin Beiber): 1KaL7FQwS3O505agh3PEnH
 - Sweetener (Ariana Grande): 5gzzyY3BiAXrJXxG2eDRhX
 - Las Vegas Residency (Adele): 0VaEoCVKvxFnYae8fzOiAW
-
+- Past Present Future (Usher): 5VsR8JjLIi9qq9y0A8H7mj
+- 2024 Tour (Eminem): 3RhY58RrPl2eR68CZPI6Gk
+- Pink Friday 2 (Nicki Minaj): 1uEKmq8sBYHn0KJNlT8x7m
+- Forget Tomorrow World Tour (Justin Timberlake): 6p9tKgeHFNaFN7KcL9Tp9Z
+- Attention Tour (Miley Cyrus): 0TN6oiFptUvS3r6elbuZ6p
+_ 4:44 (Jay-Z): 5qPBuT71QMQWmduSalrSIm
 
 Artists: 
 - Taylor Swift: 06HL4z0CvFAxyc27GXpf02
@@ -22,6 +29,12 @@ Artists:
 - Justin Beiber: 1uNFoZAHBGtllmzznpCI3s
 - Ariana Grande: 66CXWjxzNUsdJxJ2JdwvnR
 - Adele: 4dpARuHxo51G3z768sgnrY
+- Usher: 23zg3TcAtWQy7J6upgbUnj
+- Eminem: 7dGJo4pcD2V6oG8kP0tJRR
+- Nicki Minaj: 0hCNtLu0JehylgoiP8L4Gh
+- Justin Timberlake: 31TPClRtHm23RisEBtV3X7
+- Miley Cyrus: 5YGY8feqx7naU7z4HrwZM6
+- Jay-Z: 3nFkdlSjzX9mRTtwJOzDYB
 
 
 
@@ -48,14 +61,18 @@ playlist_ids <- c(
   "37i9dQZF1DX0D996ZXujBy", "59HEFq5MTQnL15aMiy256x", "7yyTfDGxCtnzy2wwWI6xYn",
   "5v88shNHPpzlGLVwMDJK7o", "6wrz4RKtDDsCat6IAfkMsj", "7JokQIXFfBVzpMmJK9n2qa",
   "4XGapCuHdovO1gSHh33f3v", "1KaL7FQwS3O505agh3PEnH", "5gzzyY3BiAXrJXxG2eDRhX",
-  "0VaEoCVKvxFnYae8fzOiAW"
+  "0VaEoCVKvxFnYae8fzOiAW", "5VsR8JjLIi9qq9y0A8H7mj", "3RhY58RrPl2eR68CZPI6Gk",
+  "1uEKmq8sBYHn0KJNlT8x7m", "6p9tKgeHFNaFN7KcL9Tp9Z", "0TN6oiFptUvS3r6elbuZ6p",
+  "5qPBuT71QMQWmduSalrSIm"
   )
 
 artist_ids <- c(
   "06HL4z0CvFAxyc27GXpf02", "6vWDO969PvNqNYHIOW5v0m", "5pKCCKE2ajJHZ9KAiaK11H",
   "3TVXtAsR1Inumwj472S9r4", "1HY2Jd0NmPuamShAr6KMms", "26dSoYclwsYLMAKD3tpOr4", 
   "5K4W6rqBFWDnAN6FQUkS6x", "1uNFoZAHBGtllmzznpCI3s", "66CXWjxzNUsdJxJ2JdwvnR",
-  "4dpARuHxo51G3z768sgnrY"
+  "4dpARuHxo51G3z768sgnrY", "23zg3TcAtWQy7J6upgbUnj", "7dGJo4pcD2V6oG8kP0tJRR",
+  "0hCNtLu0JehylgoiP8L4Gh", "31TPClRtHm23RisEBtV3X7", "5YGY8feqx7naU7z4HrwZM6",
+  "3nFkdlSjzX9mRTtwJOzDYB"
 )
 
 artists <- list(
@@ -68,7 +85,13 @@ artists <- list(
   "Kanye West" = "5K4W6rqBFWDnAN6FQUkS6x",
   "Justin Beiber" = "1uNFoZAHBGtllmzznpCI3s",
   "Ariana Grande" = "66CXWjxzNUsdJxJ2JdwvnR", 
-  "Adele" = "4dpARuHxo51G3z768sgnrY"
+  "Adele" = "4dpARuHxo51G3z768sgnrY",
+  "Usher" = "23zg3TcAtWQy7J6upgbUnj",
+  "Eminem" = "7dGJo4pcD2V6oG8kP0tJRR",
+  "Nicki Minaj" = "0hCNtLu0JehylgoiP8L4Gh",
+  "Justin Timberlake" = "31TPClRtHm23RisEBtV3X7",
+  "Miley Cyrus" = "5YGY8feqx7naU7z4HrwZM6",
+  "Jay-Z" = "3nFkdlSjzX9mRTtwJOzDYB"
 )
 
 playlist_to_artist = list(
@@ -81,7 +104,13 @@ playlist_to_artist = list(
   "4XGapCuHdovO1gSHh33f3v" = "Kanye West",
   "1KaL7FQwS3O505agh3PEnH" = "Justin Beiber",
   "5gzzyY3BiAXrJXxG2eDRhX" = "Ariana Grande",
-  "0VaEoCVKvxFnYae8fzOiAW" = "Adele"
+  "0VaEoCVKvxFnYae8fzOiAW" = "Adele",
+  "5VsR8JjLIi9qq9y0A8H7mj" = "Usher",
+  "3RhY58RrPl2eR68CZPI6Gk" = "Eminem",
+  "1uEKmq8sBYHn0KJNlT8x7m" = "Nicki Minaj",
+  "6p9tKgeHFNaFN7KcL9Tp9Z" = "Justin Timberlake",
+  "0TN6oiFptUvS3r6elbuZ6p" = "Miley Cyrus",
+  "5qPBuT71QMQWmduSalrSIm" = "Jay"
 )
 ```
 
@@ -170,5 +199,10 @@ visualize_feature(all_data, "danceability")
 ```
 ```{r}
 visualize_feature(all_data, "energy")
+```
+
+```{r}
+visualize_feature(all_data, "track.popularity")
+# comment out geom_hline for this variable
 ```
 
