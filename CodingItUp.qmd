@@ -44,7 +44,7 @@ library(tidyverse)
 library(rlang)
 ```
 
-```{r}
+```{r, eval=FALSE}
 # fill in with personal client_ID and client_secret
 Sys.setenv(SPOTIFY_CLIENT_ID = '')
 Sys.setenv(SPOTIFY_CLIENT_SECRET = '')
@@ -52,7 +52,7 @@ Sys.setenv(SPOTIFY_CLIENT_SECRET = '')
 access_token <- get_spotify_access_token()
 ```
 
-Logging all of our spotifyIDs into one vector:
+Logging all of our spotifyIDs into vectors:
 
 ```{r}
 playlist_ids <- c(
