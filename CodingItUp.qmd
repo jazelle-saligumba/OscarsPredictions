@@ -130,7 +130,9 @@ wrangle_data_func <- function(spotifyid){
   mutate(setlist_song_num = row_number(),
          prop_thru_set = setlist_song_num / n())
 }
+```
 
+```{r}
 # as list of separate data, use `map_df()` if want one big list
 #all_playlists <- map(playlist_ids, wrangle_data_func)
 all_data <- map_df(playlist_ids, wrangle_data_func)
@@ -139,8 +141,7 @@ all_data <- map_df(playlist_ids, wrangle_data_func)
 
 ```{r}
 audio_features <- c(
-  "danceability", "energy", "key", "loudness", "mode", "speechiness", "acousticness", "instrumentalness", 
-  "liveness", "valence", "tempo", "duration_ms"
+  "danceability", "energy", "key", "loudness", "mode", "speechiness", "acousticness", "instrumentalness", "liveness", "valence", "tempo", "duration_ms"
 )
 ```
 
@@ -194,6 +195,6 @@ visualize_feature <- function(data, feature) {
 ```
 
 ```{r}
-visualize_feature(all_data, "danceability")
+visualize_feature(all_data, "energy")
 ```
 

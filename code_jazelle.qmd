@@ -134,7 +134,8 @@ wrangle_data_func <- function(spotifyid){
 
 # as list of separate data, use `map_df()` if want one big list
 #all_playlists <- map(playlist_ids, wrangle_data_func)
-all_data <- map_df(playlist_ids, wrangle_data_func)
+all_data <- map_df(playlist_ids, wrangle_data_func) |>
+  rename(duration_ms = track.duration_ms)
 ```
 
 
@@ -157,6 +158,7 @@ get_mean_artist_features <- function(artist_id, features) {
   return(map(features, partial(get_mean_artist_feature, artist_df = artist_df)) |> list_cbind())
 }
 ```
+
 
 ```{r}
 artists_data <- data.frame()
@@ -204,5 +206,58 @@ visualize_feature(all_data, "energy")
 ```{r}
 visualize_feature(all_data, "track.popularity")
 # comment out geom_hline for this variable
+```
+
+### Get mean offsets for each audio feature
+- inputs: prop thru set low, prop thru set high
+- filter df for low < prop thru set in interval <= high
+  - (maybe go by 2/17ths if going with a 34 song setlist, 2/17 * 34 = 4 songs), 2 songs at the end (closers/encores)
+- group by playlist
+- for each audio feature, calculate mean(feature - mean_feature) -- should become a row
+- append to a new audio features dataset
+
+```{r}
+get_mean_offset <- function(prop_thru_set_low, prop_thru_set_high, audio_feature) {
+  all_data |>
+    filter(prop_thru_set > prop_thru_set_low, prop_thru_set <= prop_thru_set_high) |>
+    group_by(playlist_name) |>
+    summarize(offset = mean(!!sym(audio_feature) - !!sym(paste0("mean_", audio_feature)))) |>
+    ungroup() |>
+    summarize(!!sym(paste0("mean_", audio_feature, "_offset")) := mean(offset))
+}
+
+get_mean_offsets <- function(prop_thru_set_low, prop_thru_set_high, audio_features) {
+  row <- map(audio_features, partial(get_mean_offset, 
+                                     prop_thru_set_low = prop_thru_set_low, 
+                                     prop_thru_set_high = prop_thru_set_high)) |> list_cbind()
+  row$prop_thru_set_low = prop_thru_set_low
+  row$prop_thru_set_high = prop_thru_set_high
+  return(row)
+}
+```
+
+```{r}
+setlist_features <- data.frame()
+prop <- 0
+
+while (prop <= 1) {
+  setlist_features <- rbind(setlist_features, get_mean_offsets(prop, min(prop + 2/17, 1), audio_features))
+  prop <- prop + 2/17
+}
+
+setlist_features
+```
+
+```{r}
+get_artist_audio_features(artist)
+```
+
+### Average number of songs in a setlist
+```{r}
+all_data |>
+  group_by(playlist_id) |>
+  summarize(count = n()) |>
+  ungroup() |>
+  summarize(num_songs = mean(count))
 ```
 
