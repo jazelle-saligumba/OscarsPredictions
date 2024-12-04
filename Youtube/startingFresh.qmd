@@ -1,0 +1,40 @@
+```{r}
+library(tidyverse)
+library(tuber)
+library(purrr)
+library(dplyr)
+library(plyr)
+```
+
+```{r}
+client_id <- "1066916739479-lr67en2m2bqkv7o8bt9e3e4tk0ehrau7.apps.googleusercontent.com"
+client_secret <- "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"
+```
+
+```{r}
+# use the youtube oauth 
+yt_oauth(app_id = client_id,
+         app_secret = client_secret,
+         token = '')
+```
+
+```{r}
+get_stats(video_id = "VuNIsY6JdUw") # you belong w me
+```
+
+```{r}
+tswift_channel <- get_channel_stats("UCqECaJ8Gagnn7YCbPEzWH6g")
+```
+
+```{r}
+eras <- get_playlist_items(filter = list(playlist_id = "PLkH_a3pe7VZxw3cKMV9XnwsGaFNn7Xs1s"), 
+                           part = "snippet", simplify = FALSE)
+
+# Extract items and ensure consistency
+items_list <- lapply(eras$items, function(x) {
+    as.data.frame(x$snippet, stringsAsFactors = FALSE)
+})
+
+# Combine into a single data frame
+playlist_df <- do.call(rbind.fill, items_list)  
+```
