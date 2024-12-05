@@ -1,0 +1,82 @@
+run api client
+```{r}
+library(httr)
+
+url <- "https://api.themoviedb.org/3/authentication"
+
+response <- VERB("GET", url, add_headers('Authorization' = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYjczMmU4NzhiZWVkYzMxYzNiN2Y3MDJhZWFmMDcxYyIsIm5iZiI6MTczMzM1MDcyMi4xOTYsInN1YiI6IjY3NTBkNTQyNWFjZTk4YmE0NmQ0ODU5NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9LGR9bjTfxEoEGfSv0con3tA9yBuRpNSpFnTDb1jUkA'), content_type("application/octet-stream"), accept("application/json"))
+
+content(response, "text")
+```
+
+kaggle dataset load in
+```{r}
+oscar_nominees <- read.csv("the_oscar_award.csv")
+```
+
+get titles to match kaggle dataset
+```{r}
+# 
+library(httr)
+library(jsonlite)
+
+# Function to search for a movie by title and year
+search_movie <- function(movie_title, year) {
+  # Base URL for TMDb API
+  url <- "https://api.themoviedb.org/3/search/movie"
+  
+  # Parameters for the query
+  queryString <- list(
+    query = movie_title,
+    year = as.character(year)
+  )
+  
+  # Sending GET request with proper headers
+  response <- GET(url, query = queryString, 
+                  add_headers('Authorization' = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYjczMmU4NzhiZWVkYzMxYzNiN2Y3MDJhZWFmMDcxYyIsIm5iZiI6MTczMzM1MDcyMi4xOTYsInN1YiI6IjY3NTBkNTQyNWFjZTk4YmE0NmQ0ODU5NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9LGR9bjTfxEoEGfSv0con3tA9yBuRpNSpFnTDb1jUkA'),
+                  content_type("application/octet-stream"),
+                  accept("application/json"))
+  
+  # Check for response status
+  if (http_error(response)) {
+    stop("Failed to retrieve movie data. HTTP Status: ", status_code(response))
+  }
+  
+  # Parse the response content as JSON
+  response_content <- content(response, "text")
+  json_data <- fromJSON(response_content)
+  
+  # Check if there are results and return the top movie hit
+  if (length(json_data$results) > 0) {
+    return(as.data.frame(json_data$results[1, ]))
+  } else {
+    return(NULL) # No results found
+  }
+}
+```
+
+```{r}
+# Test case for the movie "Parasite" (2020)
+parasite <- search_movie("Parasite", 2020)
+print(parasite)
+
+```
+
+```{r}
+movie_details <- apply(oscar_nominees, 1, function(row) {
+  search_movie(row["title"], row["year"])
+})
+
+# Convert the list of data frames into a single data frame (if possible)
+movie_details_df <- do.call(rbind, movie_details)
+
+# Check the results
+print(movie_details_df)
+```
+
+
+work on:
+- function to filter top movie (based on popularity?)
+- function to 
+- rbind all movies with tmdb data
+- left join tmdb and kaggle
