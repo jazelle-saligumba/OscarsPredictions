@@ -1,7 +1,11 @@
-run api client
+### Load libraries
 ```{r}
+library(tidyverse)
 library(httr)
-
+library(jsonlite)
+```
+### Run API client
+```{r}
 url <- "https://api.themoviedb.org/3/authentication"
 
 response <- VERB("GET", url, add_headers('Authorization' = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYjczMmU4NzhiZWVkYzMxYzNiN2Y3MDJhZWFmMDcxYyIsIm5iZiI6MTczMzM1MDcyMi4xOTYsInN1YiI6IjY3NTBkNTQyNWFjZTk4YmE0NmQ0ODU5NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9LGR9bjTfxEoEGfSv0con3tA9yBuRpNSpFnTDb1jUkA'), content_type("application/octet-stream"), accept("application/json"))
@@ -9,16 +13,13 @@ response <- VERB("GET", url, add_headers('Authorization' = 'Bearer eyJhbGciOiJIU
 content(response, "text")
 ```
 
-kaggle dataset load in
+### Load in Kaggle dataset of Oscar nominees from 1927-2024
 ```{r}
 oscar_nominees <- read.csv("the_oscar_award.csv")
 ```
 
-get titles to match kaggle dataset
+### Search for a movie given title and year
 ```{r}
-# 
-library(httr)
-library(jsonlite)
 
 # Function to search for a movie by title and year
 search_movie <- function(movie_title, year) {
@@ -48,7 +49,11 @@ search_movie <- function(movie_title, year) {
   
   # Check if there are results and return the top movie hit
   if (length(json_data$results) > 0) {
-    return(as.data.frame(json_data$results[1, ]))
+    return(
+      as.data.frame(json_data$results |>
+        arrange(desc(popularity)) |>
+        head(1)
+    ))
   } else {
     return(NULL) # No results found
   }
@@ -59,7 +64,12 @@ search_movie <- function(movie_title, year) {
 # Test case for the movie "Parasite" (2020)
 parasite <- search_movie("Parasite", 2020)
 print(parasite)
+```
 
+```{r}
+# Test case for the movie "Titanic" (1997)
+titanic <- search_movie("Titanic", 1997)
+print(titanic)
 ```
 
 ```{r}
@@ -76,7 +86,7 @@ print(movie_details_df)
 
 
 work on:
-- function to filter top movie (based on popularity?)
+- function to filter top movie (based on popularity?) [done]
 - function to 
 - rbind all movies with tmdb data
 - left join tmdb and kaggle
