@@ -1,4 +1,11 @@
 ### Load libraries
+---
+execute:
+  warning: false
+  message: false
+---
+
+run api client
 ```{r}
 library(tidyverse)
 library(httr)
@@ -20,34 +27,33 @@ oscar_nominees <- read.csv("the_oscar_award.csv")
 
 ### Search for a movie given title and year
 ```{r}
+library(jsonlite)
 
-# Function to search for a movie by title and year
+# function to search for a movie by title and year
 search_movie <- function(movie_title, year) {
-  # Base URL for TMDb API
   url <- "https://api.themoviedb.org/3/search/movie"
   
-  # Parameters for the query
+  # parameters for the query
   queryString <- list(
     query = movie_title,
     year = as.character(year)
   )
   
-  # Sending GET request with proper headers
   response <- GET(url, query = queryString, 
                   add_headers('Authorization' = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYjczMmU4NzhiZWVkYzMxYzNiN2Y3MDJhZWFmMDcxYyIsIm5iZiI6MTczMzM1MDcyMi4xOTYsInN1YiI6IjY3NTBkNTQyNWFjZTk4YmE0NmQ0ODU5NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9LGR9bjTfxEoEGfSv0con3tA9yBuRpNSpFnTDb1jUkA'),
                   content_type("application/octet-stream"),
                   accept("application/json"))
   
-  # Check for response status
+  # check for response status
   if (http_error(response)) {
     stop("Failed to retrieve movie data. HTTP Status: ", status_code(response))
   }
   
-  # Parse the response content as JSON
+  # parse json
   response_content <- content(response, "text")
   json_data <- fromJSON(response_content)
   
-  # Check if there are results and return the top movie hit
+  # return the top movie hit
   if (length(json_data$results) > 0) {
     return(
       as.data.frame(json_data$results |>
@@ -61,7 +67,7 @@ search_movie <- function(movie_title, year) {
 ```
 
 ```{r}
-# Test case for the movie "Parasite" (2020)
+# test case
 parasite <- search_movie("Parasite", 2020)
 print(parasite)
 ```
@@ -74,14 +80,43 @@ print(titanic)
 
 ```{r}
 movie_details <- apply(oscar_nominees, 1, function(row) {
-  search_movie(row["title"], row["year"])
+  search_movie(row["film"], row["year_film"])
 })
 
-# Convert the list of data frames into a single data frame (if possible)
+#combine all calls into one df
 movie_details_df <- do.call(rbind, movie_details)
 
-# Check the results
-print(movie_details_df)
+movie_details_df
+```
+
+```{r}
+library(dplyr)
+oscar_nominees <- oscar_nominees |> 
+  rename(title = film) # change to match movie_details_df, film -> title
+```
+
+```{r}
+join_oscar <- left_join(oscar_nominees, movie_details_df, by = "title")
+join_tmdb <- left_join(movie_details_df, oscar_nominees, by = "title")
+# many-to-many is expected, same movie is nominated for diff categories
+```
+```{r}
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+# pivot wider to unnest column 'genre_ids' 
+
+join_tmdb <- join_tmdb |> 
+  mutate(genre_ids = ifelse(is.list(genre_ids), genre_ids, list(genre_ids))) |> #make all lists
+  unnest_longer(genre_ids) |>  #unlist all
+  mutate(value = 1) |>  # add a helper column with 1s
+  pivot_wider(names_from = genre_ids, values_from = value, values_fill = 0)
+ 
+#error its too large when unnesting/pivot long LOL 
+```
+
+```{r}
+write.csv(join_tmdb,"/Users/jazellesaligumba/Desktop/groupB-spotify/tmdb/join_tmdb.csv", row.names = FALSE)
 ```
 
 
