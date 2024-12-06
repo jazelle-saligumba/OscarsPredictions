@@ -1,11 +1,10 @@
-### Load libraries
 ---
 execute:
   warning: false
   message: false
 ---
 
-run api client
+### Load libraries
 ```{r}
 library(tidyverse)
 library(httr)
@@ -25,10 +24,8 @@ content(response, "text")
 oscar_nominees <- read.csv("the_oscar_award.csv")
 ```
 
-### Search for a movie given title and year
+### Search for a movie given title and year (to retrieve movie_id)
 ```{r}
-library(jsonlite)
-
 # function to search for a movie by title and year
 search_movie <- function(movie_title, year) {
   url <- "https://api.themoviedb.org/3/search/movie"
@@ -57,7 +54,7 @@ search_movie <- function(movie_title, year) {
   if (length(json_data$results) > 0) {
     return(
       as.data.frame(json_data$results |>
-        arrange(desc(popularity)) |>
+        arrange(desc(popularity)) |> # choose based on popularity
         head(1)
     ))
   } else {
@@ -67,7 +64,7 @@ search_movie <- function(movie_title, year) {
 ```
 
 ```{r}
-# test case
+# test case for parasite
 parasite <- search_movie("Parasite", 2020)
 print(parasite)
 ```
@@ -89,6 +86,83 @@ movie_details_df <- do.call(rbind, movie_details)
 movie_details_df
 ```
 
+### Search for a movie's additional details given movie_id
+```{r}
+search_movie_extra <- function(movie_id) {
+  url <- paste0("https://api.themoviedb.org/3/movie/", movie_id)
+  
+  # Make the GET request with the Authorization header and JSON accept header
+  response <- GET(url, 
+                  add_headers('Authorization' = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYjczMmU4NzhiZWVkYzMxYzNiN2Y3MDJhZWFmMDcxYyIsIm5iZiI6MTczMzM1MDcyMi4xOTYsInN1YiI6IjY3NTBkNTQyNWFjZTk4YmE0NmQ0ODU5NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9LGR9bjTfxEoEGfSv0con3tA9yBuRpNSpFnTDb1jUkA'),
+                  content_type("application/octet-stream"), 
+                  accept("application/json"))
+  
+  # Check for response status
+  if (http_error(response)) {
+    stop("Failed to retrieve movie data. HTTP Status: ", status_code(response))
+  }
+  
+  # Parse the JSON response
+  response_content <- content(response, "text")
+  json_data <- fromJSON(response_content)
+  
+  # Safely extract all the available fields
+  result <- data.frame(
+    adult = json_data$adult,
+    backdrop_path = json_data$backdrop_path,
+    belongs_to_collection = ifelse(!is.null(json_data$belongs_to_collection), json_data$belongs_to_collection, NA),
+    budget = json_data$budget,
+    genres = ifelse(!is.null(json_data$genres), paste(sapply(json_data$genres$name, function(x) x), collapse = ", "), NA),
+    homepage = json_data$homepage,
+    id = json_data$id,
+    imdb_id = json_data$imdb_id,
+    original_language = json_data$original_language,
+    original_title = json_data$original_title,
+    overview = json_data$overview,
+    popularity = json_data$popularity,
+    poster_path = json_data$poster_path,
+    production_companies = ifelse(!is.null(json_data$production_companies), paste(sapply(json_data$production_companies$name, function(x) x), collapse = ", "), NA),
+    production_countries = ifelse(!is.null(json_data$production_countries), paste(sapply(json_data$production_countries$name, function(x) x), collapse = ", "), NA),
+    release_date = json_data$release_date,
+    revenue = json_data$revenue,
+    runtime = json_data$runtime,
+    spoken_languages = ifelse(!is.null(json_data$spoken_languages), paste(sapply(json_data$spoken_languages$name, function(x) x), collapse = ", "), NA),
+    status = json_data$status,
+    tagline = json_data$tagline,
+    title = json_data$title,
+    video = json_data$video,
+    vote_average = json_data$vote_average,
+    vote_count = json_data$vote_count,
+    stringsAsFactors = FALSE
+  )
+  
+  return(result)
+}
+
+```
+
+```{r}
+# test case for fightclub
+fightclub <- search_movie_extra("550")
+print(fightclub)
+```
+
+### Function to parse through movie_details_df for extra functions
+```{r}
+movie_details_extra <- apply(movie_details_df, 1, function(row) {
+  search_movie_extra(row["id"])  
+})
+
+# Combine the results into one data frame
+movie_details_df_extra <- do.call(rbind, movie_details_extra)
+
+# Print the combined movie details data frame
+print(movie_details_df_extra)
+
+```
+
+
+### Rename film to title for consistency -- prep for joining
 ```{r}
 library(dplyr)
 oscar_nominees <- oscar_nominees |> 
@@ -100,6 +174,7 @@ join_oscar <- left_join(oscar_nominees, movie_details_df, by = "title")
 join_tmdb <- left_join(movie_details_df, oscar_nominees, by = "title")
 # many-to-many is expected, same movie is nominated for diff categories
 ```
+
 ```{r}
 library(tidyverse)
 library(dplyr)
@@ -122,6 +197,12 @@ write.csv(join_tmdb,"/Users/jazellesaligumba/Desktop/groupB-spotify/tmdb/join_tm
 
 work on:
 - function to filter top movie (based on popularity?) [done]
-- function to 
-- rbind all movies with tmdb data
-- left join tmdb and kaggle
+- function to query movies based on kaggle [done]
+- rbind all movies with tmdb data [done]
+- left join tmdb and kaggle [done]
+
+
+- realized we used an api function (search) that didn't get other variables (details like revenue),
+will try to change it
+
+
