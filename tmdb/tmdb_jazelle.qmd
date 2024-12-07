@@ -195,6 +195,57 @@ join_tmdb <- join_tmdb |>
 write.csv(join_tmdb,"/Users/jazellesaligumba/Desktop/groupB-spotify/tmdb/join_tmdb.csv", row.names = FALSE)
 ```
 
+### Making each genre into a column 
+```{r}
+# get the list of movie genres from API
+movie_list <- VERB("GET", 
+                   "https://api.themoviedb.org/3/genre/movie/list", 
+                   query = list(language = "en"), 
+                   add_headers('Authorization' = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYjczMmU4NzhiZWVkYzMxYzNiN2Y3MDJhZWFmMDcxYyIsIm5iZiI6MTczMzM1MDcyMi4xOTYsInN1YiI6IjY3NTBkNTQyNWFjZTk4YmE0NmQ0ODU5NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9LGR9bjTfxEoEGfSv0con3tA9yBuRpNSpFnTDb1jUkA'),
+                   content_type("application/octet-stream"), 
+                   accept("application/json"))
+movie_list_content <- content(movie_list, "parsed")
+
+# make the genres list into a data frame to refer to later on
+genres_list <- data.frame(
+  id = sapply(movie_list_content$genres, function(x) x$id),
+  name = sapply(movie_list_content$genres, function(x) x$name),
+  stringsAsFactors = FALSE
+)
+genres_dict <- setNames(genres_list$name, genres_list$id)
+```
+
+```{r}
+# figure out the most common genre_ids - ..don't really need
+common_genres <- movie_details_df |>
+  unnest(genre_ids) |>
+  select(genre_ids) |>
+  group_by(genre_ids) |>
+  mutate(genre_ids = genres_dict[as.character(genre_ids)]) |> 
+  summarize(count_genres = n()) |>
+  arrange(desc(count_genres))
+
+# function for adding genre columns
+wider_by_genre <- function(df) {
+  # make sure all values are vectors
+  df$genre_ids <- map(df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
+    
+  # now, change all the number values to be genres(char)
+  new_df <- df |>
+    unnest(genre_ids) |> 
+    distinct() |>
+    mutate(genre_ids = genres_dict[as.character(genre_ids)]) |> 
+    filter(!is.na(genre_ids)) |>
+    mutate(valid_id = 1) |> # create binary value for the pivot_wider to use
+    pivot_wider(names_from = genre_ids, values_from = valid_id, values_fill = 0)
+  
+  return(new_df)
+}
+
+# testing the function above
+testing <- wider_by_genre(join_tmdb)
+```
+
 
 work on:
 - function to filter top movie (based on popularity?) [done]
