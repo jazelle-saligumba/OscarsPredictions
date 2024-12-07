@@ -86,7 +86,18 @@ movie_details_df <- do.call(rbind, movie_details)
 movie_details_df
 ```
 
+
 ### Search for a movie's additional details given movie_id
+```{r}
+fields <- c("adult", "backdrop_path", "belongs_to_collection", "budget", "genres", "homepage", "id", "imdb_id", "original_language", "original_title", "overview", "popularity", "poster_path", "production_companies", "production_countries", "release_date", "revenue", "runtime", "spoken_languages", "status", "tagline", "title", "video", "vote_average", "vote_count")
+```
+
+```{r}
+parse_field <- function(json_data, field) {
+  return(ifelse(!is.null(json_data[[field]]), json_data[[field]], NA))
+}
+```
+
 ```{r}
 search_movie_extra <- function(movie_id) {
   url <- paste0("https://api.themoviedb.org/3/movie/", movie_id)
@@ -106,59 +117,49 @@ search_movie_extra <- function(movie_id) {
   response_content <- content(response, "text")
   json_data <- fromJSON(response_content)
   
-  # Safely extract all the available fields
-  result <- data.frame(
-    adult = json_data$adult,
-    backdrop_path = json_data$backdrop_path,
-    belongs_to_collection = ifelse(!is.null(json_data$belongs_to_collection), json_data$belongs_to_collection, NA),
-    budget = json_data$budget,
-    genres = ifelse(!is.null(json_data$genres), paste(sapply(json_data$genres$name, function(x) x), collapse = ", "), NA),
-    homepage = json_data$homepage,
-    id = json_data$id,
-    imdb_id = json_data$imdb_id,
-    original_language = json_data$original_language,
-    original_title = json_data$original_title,
-    overview = json_data$overview,
-    popularity = json_data$popularity,
-    poster_path = json_data$poster_path,
-    production_companies = ifelse(!is.null(json_data$production_companies), paste(sapply(json_data$production_companies$name, function(x) x), collapse = ", "), NA),
-    production_countries = ifelse(!is.null(json_data$production_countries), paste(sapply(json_data$production_countries$name, function(x) x), collapse = ", "), NA),
-    release_date = json_data$release_date,
-    revenue = json_data$revenue,
-    runtime = json_data$runtime,
-    spoken_languages = ifelse(!is.null(json_data$spoken_languages), paste(sapply(json_data$spoken_languages$name, function(x) x), collapse = ", "), NA),
-    status = json_data$status,
-    tagline = json_data$tagline,
-    title = json_data$title,
-    video = json_data$video,
-    vote_average = json_data$vote_average,
-    vote_count = json_data$vote_count,
-    stringsAsFactors = FALSE
-  )
+  result <- data.frame(matrix(ncol = length(fields), nrow = 1))
+  colnames(result) <- fields
   
-  return(result)
+  # Safely extract all the available fields
+  if (length(json_data) > 0) {
+    for (field in fields) {
+      result[[field]] = parse_field(json_data, field)
+    }
+    
+    return(result) 
+  } else {
+    return(data.frame())
+  }
 }
 
 ```
 
 ```{r}
 # test case for fightclub
-fightclub <- search_movie_extra("550")
+fightclub <- search_movie_extra(550)
 print(fightclub)
 ```
 
 ### Function to parse through movie_details_df for extra functions
+
 ```{r}
-movie_details_extra <- apply(movie_details_df, 1, function(row) {
-  search_movie_extra(row["id"])  
-})
+movie_data <- map_df(unique(movie_details_df$id), search_movie_extra)
+```
 
-# Combine the results into one data frame
-movie_details_df_extra <- do.call(rbind, movie_details_extra)
+```{r}
+# look into this
+length(unique(movie_details_df$id))
+length(unique(oscar_nominees$film))
+```
 
-# Print the combined movie details data frame
-print(movie_details_df_extra)
+```{r}
+movie_data$year = as.integer(substr(movie_data$release_date, 1, 4))
+```
 
+
+```{r}
+# fix to join by movie AND year, need to parse year from movie data
+all_data <- left_join(oscar_nominees, movie_data, by = c("film" = "title", "year_film" = "year"))
 ```
 
 
