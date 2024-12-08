@@ -185,7 +185,7 @@ all_data |>
          category == "ACTRESS IN A SUPPORTING ROLE" |
          category == "WRITING (Original Screenplay)" |
          category == "WRITING (Adapted Screenplay)" | category == "CINEMATOGRAPHY" |
-         category == "FILM EDITING") |>
+         category == "FILM EDITING")
 ```
 
 
@@ -265,25 +265,6 @@ join_tmdb <- left_join(movie_details_df, oscar_nominees, by = "title")
 # many-to-many is expected, same movie is nominated for diff categories
 ```
 
-```{r}
-library(tidyverse)
-library(dplyr)
-library(tidyr)
-# pivot wider to unnest column 'genre_ids' 
-
-join_tmdb <- join_tmdb |> 
-  mutate(genre_ids = ifelse(is.list(genre_ids), genre_ids, list(genre_ids))) |> #make all lists
-  unnest_longer(genre_ids) |>  #unlist all
-  mutate(value = 1) |>  # add a helper column with 1s
-  pivot_wider(names_from = genre_ids, values_from = value, values_fill = 0)
- 
-#error its too large when unnesting/pivot long LOL 
-```
-
-```{r}
-write.csv(join_tmdb,"/Users/jazellesaligumba/Desktop/groupB-spotify/tmdb/join_tmdb.csv", row.names = FALSE)
-```
-
 ### Making each genre into a column 
 ```{r}
 # get the list of movie genres from API
@@ -333,9 +314,12 @@ wider_by_genre <- function(df) {
 }
 
 # testing the function above
-testing <- wider_by_genre(join_tmdb)
+wide_genre_join_tmdb <- wider_by_genre(join_tmdb)
 ```
 
+```{r}
+write.csv(join_tmdb,"/Users/jazellesaligumba/Desktop/groupB-spotify/tmdb/join_tmdb.csv", row.names = FALSE)
+```
 
 work on:
 - function to filter top movie (based on popularity?) [done]
