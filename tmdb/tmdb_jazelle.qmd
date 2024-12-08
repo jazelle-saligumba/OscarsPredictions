@@ -14,7 +14,10 @@ library(jsonlite)
 ```{r}
 url <- "https://api.themoviedb.org/3/authentication"
 
-response <- VERB("GET", url, add_headers('Authorization' = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYjczMmU4NzhiZWVkYzMxYzNiN2Y3MDJhZWFmMDcxYyIsIm5iZiI6MTczMzM1MDcyMi4xOTYsInN1YiI6IjY3NTBkNTQyNWFjZTk4YmE0NmQ0ODU5NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9LGR9bjTfxEoEGfSv0con3tA9yBuRpNSpFnTDb1jUkA'), content_type("application/octet-stream"), accept("application/json"))
+personal_authorization <- ''
+
+response <- VERB("GET", url, add_headers('Authorization' =  personal_authorization), 
+                 content_type("application/octet-stream"), accept("application/json"))
 
 content(response, "text")
 ```
@@ -303,6 +306,7 @@ genres_dict <- setNames(genres_list$name, genres_list$id)
 
 ```{r}
 # figure out the most common genre_ids - ..don't really need
+movie_details_df$genre_ids <- map(movie_details_df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
 common_genres <- movie_details_df |>
   unnest(genre_ids) |>
   select(genre_ids) |>
