@@ -265,7 +265,7 @@ join_tmdb <- left_join(movie_details_df, oscar_nominees, by = "title")
 # many-to-many is expected, same movie is nominated for diff categories
 ```
 
-### Making each genre into a column 
+### Making each genre into a column (to flatten the data)
 ```{r}
 # get the list of movie genres from API
 movie_list <- VERB("GET", 
@@ -319,8 +319,25 @@ wide_genre_join_tmdb <- wider_by_genre(join_tmdb)
 ```
 
 ```{r}
+
+### Making CSV files
+```{r, eval=FALSE}
+write.csv(wider_by_genre(movie_details_df),
+          "/Users/kellieau/Desktop/School/Pomona/ThirdYear/Fall2024/CompStats/groupB-spotify/tmdb/movie_details_df.csv", 
+          row.names = FALSE)
+
+#doesn't quite work, need to flatten the all_data.. 
+#all_data |>
+ # mutate(genre_ids = genres) |>
+ # select(-genres) |>
+ # wider_by_genre() |>
+ # write.csv("/Users/kellieau/Desktop/School/Pomona/ThirdYear/Fall2024/CompStats/groupB-spotify/tmdb/all_data.csv", row.names = FALSE)
+```
+
+```{r, eval=FALSE}
 write.csv(join_tmdb,"/Users/jazellesaligumba/Desktop/groupB-spotify/tmdb/join_tmdb.csv", row.names = FALSE)
 ```
+
 
 work on:
 - function to filter top movie (based on popularity?) [done]
