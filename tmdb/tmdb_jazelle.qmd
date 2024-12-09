@@ -340,7 +340,17 @@ wider_by_genre <- function(df) {
 wide_genre_join_tmdb <- wider_by_genre(join_tmdb)
 ```
 
+###Wrangling/Preparing for Model 
 ```{r}
+# count # of nominations and # of wins and make data compact
+all_data |>
+  group_by(film) |>
+  mutate(num_noms = n(),
+         num_wins = sum(ifelse(winner == "True", 1, 0))) |>
+  ungroup() |>
+  select(-category, -name, -winner) |>
+  distinct()
+```
 
 ### Making CSV files
 ```{r, eval=FALSE}
