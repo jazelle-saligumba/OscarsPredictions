@@ -308,7 +308,8 @@ wider_by_genre <- function(df) {
     mutate(genre_ids = genres_dict[as.character(genre_ids)]) |> 
     filter(!is.na(genre_ids)) |>
     mutate(valid_id = 1) |> # create binary value for the pivot_wider to use
-    pivot_wider(names_from = genre_ids, values_from = valid_id, values_fill = 0)
+    pivot_wider(names_from = genre_ids, values_from = valid_id, 
+                values_fill = 0, names_prefix = "genre_")
   
   return(new_df)
 }
