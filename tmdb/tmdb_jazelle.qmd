@@ -14,7 +14,7 @@ library(jsonlite)
 ```{r}
 url <- "https://api.themoviedb.org/3/authentication"
 
-personal_authorization <- ''
+personal_authorization <- paste0('Bearer ', ADD AUTH TOKEN)
 
 response <- VERB("GET", url, add_headers('Authorization' =  personal_authorization), 
                  content_type("application/octet-stream"), accept("application/json"))
@@ -44,10 +44,7 @@ search_movie <- function(movie_title, year) {
     year = as.character(year)
   )
   
-  response <- GET(url, query = queryString, 
-                  add_headers('Authorization' = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYjczMmU4NzhiZWVkYzMxYzNiN2Y3MDJhZWFmMDcxYyIsIm5iZiI6MTczMzM1MDcyMi4xOTYsInN1YiI6IjY3NTBkNTQyNWFjZTk4YmE0NmQ0ODU5NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9LGR9bjTfxEoEGfSv0con3tA9yBuRpNSpFnTDb1jUkA'),
-                  content_type("application/octet-stream"),
-                  accept("application/json"))
+  response <- VERB("GET", url, query = queryString, add_headers('Authorization' = personal_authorization), content_type("application/octet-stream"), accept("application/json"))
   
   # check for response status
   if (http_error(response)) {
@@ -112,7 +109,7 @@ search_movie_extra <- function(movie_id) {
   
   # Make the GET request with the Authorization header and JSON accept header
   response <- GET(url, 
-                  add_headers('Authorization' = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYjczMmU4NzhiZWVkYzMxYzNiN2Y3MDJhZWFmMDcxYyIsIm5iZiI6MTczMzM1MDcyMi4xOTYsInN1YiI6IjY3NTBkNTQyNWFjZTk4YmE0NmQ0ODU5NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9LGR9bjTfxEoEGfSv0con3tA9yBuRpNSpFnTDb1jUkA'),
+                  add_headers('Authorization' = personal_authorization),
                   content_type("application/octet-stream"), 
                   accept("application/json"))
   
@@ -167,7 +164,8 @@ movie_data$year = as.integer(substr(movie_data$release_date, 1, 4))
 
 ```{r}
 # fix to join by movie AND year, need to parse year from movie data
-all_data <- left_join(oscar_nominees, movie_data, by = c("film" = "title", "year_film" = "year"))
+all_data <- left_join(oscar_nominees, movie_data, by = c("film" = "title")) |>
+  filter(abs(year_film - year) <= 1)
 ```
 
 ```{r}
@@ -175,9 +173,9 @@ sum(sapply(all_data$id, is.na))
 ```
 
 ```{r}
-# all films nominated for 10 categories after 1960
-all_data |>
-  filter(year_film >= 1960) |>
+# all films nominated for 10 categories after 1939
+after_1939 <- all_data |>
+  filter(year_film >= 1939) |>
   filter(category != "FOREIGN LANGUAGE FILM") |>
   filter(category == "BEST PICTURE" | category == "DIRECTING" | 
          category == "ACTOR IN A LEADING ROLE" | category == "ACTRESS IN A LEADING ROLE" |
@@ -192,6 +190,7 @@ all_data |>
 ```{r}
 # foreign language films nominated for top 10 categories
 international <- all_data |>
+  filter(year_film >= 1939) |>
   filter(map_lgl(production_countries, ~ !is.null(.))) |>
   filter(map_lgl(production_countries, ~ !("US" %in% .))) |>
   filter(category != "FOREIGN LANGUAGE FILM") |>
@@ -207,6 +206,7 @@ international <- all_data |>
 ```{r}
 # domestic films nominated for top 10 categories
 domestic <- all_data |>
+  filter(year_film >= 1939) |>
   filter(map_lgl(production_countries, ~ !is.null(.))) |>
   filter(map_lgl(production_countries, ~ ("US" %in% .))) |>
   filter(category != "FOREIGN LANGUAGE FILM") |>
@@ -221,7 +221,7 @@ domestic <- all_data |>
 
 
 ````{r}
-international |>
+international['id'].drop_duplicates() |>
   summarize(popularity = mean(popularity), winners = mean(as.logical(winner)), 
             revenue = mean(revenue), rating = mean(vote_average), 
             num_votes = mean(vote_count))
@@ -229,27 +229,49 @@ international |>
 
 ````{r}
 domestic |>
+  filter(unique(id)) |>
   summarize(popularity = mean(popularity), winners = mean(as.logical(winner)), 
             revenue = mean(revenue), rating = mean(vote_average), 
             num_votes = mean(vote_count))
 ```
 
-
-
 ```{r}
-nas <- all_data |>
-  filter(is.na(id)) 
-nas
-```
-
-```{r}
-nas[1000, ]$film
+after_1939 |>
+  group_by(year_film, category) |>
+  # compare intl films to domestic films nominated for same category in same year
+  filter()
 ```
 
 
 ```{r}
-search_movie(nas[1000,]$film, nas[1000,]$year_film)
+ms <- all_data |>
+  filter(film == "Marriage Story")
 ```
+
+
+```{r}
+international |>
+  filter(year_ceremony == 2024, category == "BEST PICTURE") |>
+  summarize(popularity = mean(popularity), winners = mean(as.logical(winner)), 
+            budget = mean(budget), revenue = mean(revenue), rating = mean(vote_average), 
+            num_votes = mean(vote_count))
+```
+```{r}
+domestic |>
+  filter(year_ceremony == 2024, category == "BEST PICTURE") |>
+  summarize(popularity = mean(popularity), winners = mean(as.logical(winner)), 
+          budget = mean(budget), revenue = mean(revenue), rating = mean(vote_average), 
+          num_votes = mean(vote_count))
+```
+
+```{r}
+all_data |>
+  filter(year_ceremony == 2021, category == "BEST PICTURE")
+```
+
+
+
+
 
 
 ### Rename film to title for consistency -- prep for joining
@@ -271,7 +293,7 @@ join_tmdb <- left_join(movie_details_df, oscar_nominees, by = "title")
 movie_list <- VERB("GET", 
                    "https://api.themoviedb.org/3/genre/movie/list", 
                    query = list(language = "en"), 
-                   add_headers('Authorization' = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYjczMmU4NzhiZWVkYzMxYzNiN2Y3MDJhZWFmMDcxYyIsIm5iZiI6MTczMzM1MDcyMi4xOTYsInN1YiI6IjY3NTBkNTQyNWFjZTk4YmE0NmQ0ODU5NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.9LGR9bjTfxEoEGfSv0con3tA9yBuRpNSpFnTDb1jUkA'),
+                   add_headers('Authorization' = personal_authorization),
                    content_type("application/octet-stream"), 
                    accept("application/json"))
 movie_list_content <- content(movie_list, "parsed")

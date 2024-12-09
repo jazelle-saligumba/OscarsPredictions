@@ -1,0 +1,89 @@
+---
+title: "MATH 154 - Final Project Writeup"
+authors: "Jazelle Saligumba, Kellie Au, Kartika Santoso"
+subtitle: "due on Thursday, December 12, 2024"
+format: pdf
+execute:
+  warning: false
+  message: false
+--- 
+
+
+## Motivation
+
+
+
+## 
+
+1. Why should anyone care about this?
+
+Evaluating the media industry and the quality/replicability/authenticity of the media we consume 
+
+recent years in hollywood, (ex. writers' strike led to more reality tv, covid), is there more oscar baiting than usual, 
+- putting money into movies (expensive sound/visual effects, cgi, alist actors, etc), want to get it back... how do you get that money back?
+- is there a trend in what kind of movies people are making nowadays to get the money back (ex. more period pieces)
+- when are the "best" movies made? and what are the "best" movies
+- what movies are better
+- how much money do oscar nominees/wins make back? (in comparison to the budget)
+- how much is a win worth compared to a nomination?
+- classification model of who wins and who doesn't
+- predicting 2025 oscar winners / nominees
+
+
+overarching questions: who wins the oscars? (oscar formula and international movies), what is an oscar worth? (motivation), how true is our current idea of the oscar formula? (period pieces, big budget, released late in the year)
+
+- quantifying the Oscar formula
+- seeing trends in genres of winners/nominees since 1940s
+- sentiment analysis on descriptions to see if more positive/negative themes are more likely to win
+- genres
+- budget / revenue
+- release date (is it late in the year)
+- runtime
+- vote average / vote count
+- popularity
+
+- blockbuster vs oscar
+
+
+- run a random forest on who will win oscars (by category?)
+    - + sentiment analysis on overviews?
+    - preprocessing: split release date into year/month
+    - how many years of data do we wanna use and which categories?
+    - shiny app to make an interface where ppl can "predict" the winners(?)
+    - slider graphs
+- insights on budget/revenue/popularity/voteAve--> motivates why people wanna win an oscar
+
+
+
+
+2. What is the project about? Do not assume that your readers have any domain knowledge! The burden of explanation as to what you are talking about is on you! For example, if your project involves phylogenetic trees, do not assume that your audience has anything other than a basic, lay understanding of genetics.
+
+- 
+
+2. Where did your data come from? What kind of data was it? Is there a link to the data or some other way for the reader to follow up on your work? Be sure to cite / reference where your data came from!!
+
+- 
+
+3. What are your findings? What kind of statistical computations (if any) have you done to support those conclusions? Again, while the R code will show how the calculation was performed, it is up to you to interpret, in English sentences, the results of these calculations. Do not forget about units, axis labels, etc.
+
+- 
+
+4. What are the limitations of your work? Be clear so that others do not misinterpret your findings.
+
+- 
+
+5. To what population do your results apply? Do they generalize? Could your work be extended with more data or computational power or time to analyze? How could your study be improved? Suggesting plausible extensions don’t weaken your work – they strengthen it by connecting it to future work.
+
+- 
+
+6. What ethical considerations that came about during the project. How were you or weren’t you able to address those issues?
+
+- 
+
+7. What did you learn beyond what we’ve covered in class?
+
+- how to work with live data from API, API calls
+
+
+
+
