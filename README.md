@@ -2,7 +2,7 @@
 
 ## To-Dos
 - [ ] create something that will visualize the oscar formula characteristics (kellie & kartika)
-    - genres of winners over time, release dates (month) of winners over time, 
+    - genres of winners over time, release dates (month) of winners over time, budget
     - make it zoomable / scrollable (shiny)
 - [ ] data preprocessing for RF training
     - choose subset of data to look at (year - present, category = best picture)
