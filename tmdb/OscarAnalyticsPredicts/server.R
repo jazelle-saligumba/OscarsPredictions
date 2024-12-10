@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+library(httr)
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
@@ -24,5 +25,15 @@ function(input, output, session) {
              main = 'Histogram of waiting times')
 
     })
-
+    
+    
+    # Random Forest prediction
+    data <- search_movie_extra(search_movie(movie, 2024)$id)
+    
+    movie_rf_final |>
+      predict(new_data = data) |>
+      cbind(data)
+    
+    # get prediction (prediction probs too if we have them)
 }
+

@@ -11,23 +11,35 @@ library(shiny)
 
 # Define UI for application that draws a histogram
 fluidPage(
-
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
-        )
-    )
+    titlePanel("Who wins the Oscars?"),
+    
+    tabsetPanel(
+      # Tab for Data Visualization
+      tabPanel("Data Visualization",
+               sidebarLayout(
+                 sidebarPanel(
+                   selectInput("var", "Select variable to plot", 
+                               choices = c("genre", "release month", "budget"), 
+                               selected = "genre")
+                 ),
+                 mainPanel(
+                   plotOutput("plot")
+                 )
+               )
+      ),
+      
+      # Tab for RF predictions
+      tabPanel("Predicting",
+               sidebarLayout(
+                 sidebarPanel(
+                   textInput(inputId="input", label="Enter a 2024 movie", placeholder = "ex. Wicked"),
+                   #actionButton("predict", "Predict")
+                 ),
+                 mainPanel(
+                   tableOutput("word_freq_table")
+                 )
+               )
+      )
+    ),
 )
