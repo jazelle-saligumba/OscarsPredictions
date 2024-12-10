@@ -370,19 +370,23 @@ write.csv(wider_by_genre(movie_details_df),
 write.csv(join_tmdb,"/Users/jazellesaligumba/Desktop/groupB-spotify/tmdb/join_tmdb.csv", row.names = FALSE)
 ```
 
+```{r}
+# looking at the genres
+graph_data_pre75 <- all_data |>
+  filter(year_ceremony >= 1975) |>
+  mutate(genre_ids = genres,
+         release_month = as.integer(substr(release_date, 6, 7))) |>
+  select(-spoken_languages, -production_countries, -production_companies, 
+         -belongs_to_collection, -genres) |>
+  wider_by_genre()
+```
 
-### Visualizing Oscar bait features over time
 ```{r}
 # preprocess data 
 data <- all_data |>
   filter(year_film >= 1975) |>
   mutate(release_month = as.integer(substr(release_date, 6, 7)))
 ```
-
-
-
-
-
 
 work on:
 - function to filter top movie (based on popularity?) [done]
