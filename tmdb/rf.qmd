@@ -1,0 +1,127 @@
+
+
+```{r}
+# function for unnesting list columns
+widen <- function(df) {
+  movie_details_df$genre_ids <- map(movie_details_df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
+
+  # make sure all values are vectors
+  df$col_ids <- map(df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
+    
+  # now, change all the number values to be genres(char)
+  new_df <- df |>
+    unnest(genre_ids) |> 
+    distinct() |>
+    #mutate(genre_ids = genres_dict[as.character(genre_ids)]) |> 
+    filter(!is.na(genre_ids)) |>
+    mutate(valid_id = 1) |> # create binary value for the pivot_wider to use
+    pivot_wider(names_from = genre_ids, values_from = valid_id, 
+                values_fill = 0, names_prefix = "genre_")
+  
+  return(new_df)
+}
+
+# testing the function above
+wide_genre_join_tmdb <- wider_by_genre(join_tmdb)
+```
+
+
+```{r}
+# preprocess data for best picture winners since 1975
+# need to widen genres, production_companies, production_countries, spoken_languages
+# predict on year_ceremony, budget, genres, original_language, popularity, production_companies, production_countries, revenue, runtime, spoken_langauges, vote_average, vote_count, release_month
+
+rf_data <- data |>
+  widen("genres", unique(unlist(data[["genres"]]))) |>
+  widen("production_companies", unique(unlist(data[["production_companies"]]))) |>
+  widen("production_countries", unique(unlist(data[["production_countries"]]))) |>
+  widen("spoken_languages", unique(unlist(data[["spoken_langauges"]])))
+```
+
+```{r}
+library(tidymodels)
+
+# partition
+set.seed(47)
+movie_split <- initial_split(data)
+movie_train <- training(movie_split)
+movie_test <- testing(movie_split)
+
+# recipe
+recipe <-
+  recipe(winner ~ . , #####
+         data = movie_train) |>
+  step_unknown(sex, new_level = "unknown") |> #####
+  step_mutate(year = as.factor(year)) #####
+
+#model
+movie_rf <- rand_forest(mtry = tune(),
+                        trees = tune()) |>
+  set_engine("ranger", importance = "permutation") |>
+  set_mode("classification")
+
+# workflow
+movie_rf_wflow <- workflow() |>
+  add_model(movie_rf) |>
+  add_recipe(recipe)
+
+# CV
+set.seed(234)
+movie_folds <- vfold_cv(movie_train, v = 4)
+
+# parameters
+movie_grid <- grid_regular(mtry(range = c(2,7)), #####
+                           trees(range = c(1,500)), #####
+                           levels = 5) #####
+
+# tune
+movie_rf_tune <- 
+  movie_rf_wflow |>
+  tune_grid(resamples = movie_folds,
+            grid = movie_grid)
+
+select_best(movie_rf_tune, metric = "accuracy")
+```
+
+```{r}
+movie_rf_best <- finalize_model(
+  movie_rf,
+  select_best(movie_rf_tune, metric = "accuracy"))
+
+movie_rf_best
+```
+
+```{r}
+movie_rf_final <-
+  workflow() |>
+  add_model(movie_rf_best) |>
+  add_recipe(recipe) |>
+  fit(data = movie_train)
+
+movie_rf_final
+```
+
+```{r}
+# Test on testing data
+movie_rf_final |>
+  predict(new_data = movie_test) |>
+  cbind(movie_test)
+```
+
+```{r}
+# Variable importance
+library(vip)
+
+movie_rf_final |>
+  extract_fit_parsnip() |>
+  vip(geom = "point")
+```
+
+
+
+
+
+
+
+
+
