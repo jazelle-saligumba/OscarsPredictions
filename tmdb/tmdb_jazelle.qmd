@@ -383,9 +383,13 @@ graph_data_pre75 <- all_data |>
 
 ```{r}
 # preprocess data 
-data <- all_data |>
-  filter(year_film >= 1975) |>
-  mutate(release_month = as.integer(substr(release_date, 6, 7)))
+rf_data <- all_data |>
+  filter(year_ceremony >= 1975) |>
+  mutate(genre_ids = genres,
+         release_month = as.integer(substr(release_date, 6, 7))) |>
+  select(-spoken_languages, -production_countries, -production_companies, 
+         -belongs_to_collection, -genres) |>
+  wider_by_genre()
 ```
 
 
@@ -419,51 +423,6 @@ data |>
 
 ### Random Forest Model
 
-```{r}
-library(tidymodels)
-
-# partition
-set.seed(47)
-movie_split <- initial_split(data)
-movie_train <- training(movie_split)
-movie_test <- testing(movie_split)
-
-# recipe
-recipe <-
-  recipe(winner ~ budget,  ,
-         data = penguin_train) |>
-  step_unknown(sex, new_level = "unknown") |>
-  step_mutate(year = as.factor(year)) 
-
-#model
-penguin_rf <- rand_forest(mtry = tune(),
-                           trees = tune()) |>
-  set_engine("ranger", importance = "permutation") |>
-  set_mode("regression")
-
-# workflow
-penguin_rf_wflow <- workflow() |>
-  add_model(penguin_rf) |>
-  add_recipe(penguin_rf_recipe)
-
-# CV
-set.seed(234)
-penguin_folds <- vfold_cv(penguin_train,
-                          v = 4)
-
-# parameters
-penguin_grid <- grid_regular(mtry(range = c(2,7)),
-                             trees(range = c(1,500)),
-                             levels = 5)
-
-# tune
-penguin_rf_tune <- 
-  penguin_rf_wflow |>
-  tune_grid(resamples = penguin_folds,
-            grid = penguin_grid)
-
-select_best(penguin_rf_tune, metric = "rmse")
-```
 
 
 
