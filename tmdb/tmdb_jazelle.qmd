@@ -388,6 +388,85 @@ data <- all_data |>
   mutate(release_month = as.integer(substr(release_date, 6, 7)))
 ```
 
+
+```{r}
+plot_feature <- function(feature, nom) {
+  data |>
+    filter(category == nom, winner == "True") |>
+    ggplot() +
+    geom_jitter(aes(x = year, y = !!sym(feature)))
+}
+```
+
+```{r}
+plot_feature("budget", "BEST PICTURE")
+```
+
+```{r}
+data |>
+  ggplot() +
+  geom_point(aes(x = year, y = (revenue / budget), color = winner))
+```
+
+
+
+```{r}
+data |>
+  filter(winner == "True", category == "BEST PICTURE") |>
+  arrange(desc(budget))
+```
+
+
+### Random Forest Model
+
+```{r}
+library(tidymodels)
+
+# partition
+set.seed(47)
+movie_split <- initial_split(data)
+movie_train <- training(movie_split)
+movie_test <- testing(movie_split)
+
+# recipe
+recipe <-
+  recipe(winner ~ budget,  ,
+         data = penguin_train) |>
+  step_unknown(sex, new_level = "unknown") |>
+  step_mutate(year = as.factor(year)) 
+
+#model
+penguin_rf <- rand_forest(mtry = tune(),
+                           trees = tune()) |>
+  set_engine("ranger", importance = "permutation") |>
+  set_mode("regression")
+
+# workflow
+penguin_rf_wflow <- workflow() |>
+  add_model(penguin_rf) |>
+  add_recipe(penguin_rf_recipe)
+
+# CV
+set.seed(234)
+penguin_folds <- vfold_cv(penguin_train,
+                          v = 4)
+
+# parameters
+penguin_grid <- grid_regular(mtry(range = c(2,7)),
+                             trees(range = c(1,500)),
+                             levels = 5)
+
+# tune
+penguin_rf_tune <- 
+  penguin_rf_wflow |>
+  tune_grid(resamples = penguin_folds,
+            grid = penguin_grid)
+
+select_best(penguin_rf_tune, metric = "rmse")
+```
+
+
+
 work on:
 - function to filter top movie (based on popularity?) [done]
 - function to query movies based on kaggle [done]
