@@ -371,6 +371,19 @@ write.csv(join_tmdb,"/Users/jazellesaligumba/Desktop/groupB-spotify/tmdb/join_tm
 ```
 
 
+### Visualizing Oscar bait features over time
+```{r}
+# preprocess data 
+data <- all_data |>
+  filter(year_film >= 1975) |>
+  mutate(release_month = as.integer(substr(release_date, 6, 7)))
+```
+
+
+
+
+
+
 work on:
 - function to filter top movie (based on popularity?) [done]
 - function to query movies based on kaggle [done]
