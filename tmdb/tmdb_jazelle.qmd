@@ -396,6 +396,7 @@ write.csv(wider_by_genre(movie_details_df),
 write.csv(join_tmdb,"/Users/jazellesaligumba/Desktop/groupB-spotify/tmdb/join_tmdb.csv", row.names = FALSE)
 ```
 
+### Graphing Data (regarding the Oscar Formula)
 ```{r}
 # pre-processing data frame to use for graphs
 graph_data_pre75 <- all_data |>
