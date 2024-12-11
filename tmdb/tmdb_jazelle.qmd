@@ -414,61 +414,101 @@ graph_data_pre75 <- all_data |>
 
 ```{r}
 # graphing the genre data (one year, all categories)
-graph_data_pre75$winner <- factor(graph_data_pre75$winner, levels = c("True", "False"))
-
-graph_data_pre75 |>
-  filter(year_ceremony == 2020) |>
-  unnest(genre_ids) |>
-  distinct() |>
-  mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
-  ggplot(aes(x = genre_ids, fill = winner)) + 
-  geom_bar(position = "stack") +
-  theme_minimal() + 
-  scale_fill_manual(values = c("False" = "#bdd7fe", "True" = "orange"),
-                    alpha = c("False" = 0.5)) + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+graph_genre_one_year <- function(year){
+  graph_data_pre75$winner <- factor(graph_data_pre75$winner, levels = c("True", "False"))
+  
+  graph_data_pre75 |>
+    filter(year_ceremony == year) |>
+    unnest(genre_ids) |>
+    distinct() |>
+    mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
+    ggplot(aes(x = genre_ids, fill = winner)) + 
+    geom_bar(position = "stack") +
+    theme_minimal() + 
+    scale_fill_manual(values = c("False" = "#bdd7fe", "True" = "orange")) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+graph_genre_one_year(2020)
 ```
 
 ```{r}
 # graphing the genre data (all years, one category)
+graph_genre_all_years <- function(){
+  graph_data_pre75 |>
+    filter(category == "BEST PICTURE") |>
+    unnest(genre_ids) |>
+    distinct() |>
+    mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
+    ggplot(aes(x = year_film, y = genre_ids, color = winner)) + 
+    geom_jitter() +
+    scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
+    theme_minimal() 
+}
+graph_genre_all_years()
+
 graph_data_pre75 |>
-  filter(category == "BEST PICTURE") |>
-  unnest(genre_ids) |>
-  distinct() |>
-  mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
-  ggplot(aes(x = year_film, y = genre_ids, color = winner)) + 
-  geom_jitter() +
-  scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
-  theme_minimal() 
+    filter(category == "BEST PICTURE") |>
+    unnest(genre_ids) |>
+    distinct() |>
+    mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
+    ggplot(aes(x = year_film, y = genre_ids, color = winner)) + 
+    geom_jitter() +
+    scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
+    theme_minimal() 
 ```
 
 ```{r}
 #TODO: DECIDE WHAT TYPE OF PLOT WE WANT!
 # graphing the release date data (one year, all categories) 
-graph_data_pre75 |>
-  filter(year_ceremony == 2020) |>
-  ggplot(aes(x = release_day_val, y = 0, color = winner)) +
-  geom_jitter() + 
-  scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
-  theme_minimal()
+graph_release_one_year_scatter<- function(year) {
+  graph_data_pre75 |>
+    filter(year_ceremony == 2020) |>
+    ggplot(aes(x = release_day_val, y = 0, color = winner)) +
+    geom_jitter(position = position_jitter(height = 0.1)) + 
+    scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
+    theme_minimal()
+}
+graph_release_one_year_scatter(2020)
+
+
+# can't figure out why these box plots are different...
+  # basically when year = 2020, filter(year_ceremony = as.integer(year)) 
+  # creates a dif df than filter(year_ceremony == 2020)... IDK WHY
+graph_release_one_year_box <- function(year){
+  graph_data_pre75 |>
+    filter(year_ceremony == as.integer(year)) |>
+    ggplot(aes(x = winner, y = release_day_val, color = winner)) +
+    geom_boxplot() + 
+    theme_minimal()
+}
+graph_release_one_year_box(2020)
 
 graph_data_pre75 |>
   filter(year_ceremony == 2020) |>
   ggplot(aes(x = winner, y = release_day_val, color = winner)) +
   geom_boxplot() + 
   theme_minimal()
+
+year <- 2020
+graph_data_pre75 |> filter(year_ceremony == as.integer(year)) # this just simply is giving wrong output df
+graph_data_pre75 |> filter(year_ceremony == 2020)
 ```
 
 ```{r}
 # graphing the release date data (all years, one category)
-graph_data_pre75 |>
-  filter(category == "BEST PICTURE") |>
-  ggplot(aes(x = year_film, y = release_day_val, color = winner)) +
-  geom_point() + 
-  scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
-  theme_minimal()
+graph_release_all_years <- function(){
+  graph_data_pre75 |>
+    filter(category == "BEST PICTURE") |>
+    ggplot(aes(x = year_film, y = release_day_val, color = winner)) +
+    geom_point() + 
+    scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
+    theme_minimal()
+}
+graph_release_all_years()
 ```
 
+
+### Preprocessing data for Model
 ```{r}
 # preprocess data 
 rf_data <- all_data |>
