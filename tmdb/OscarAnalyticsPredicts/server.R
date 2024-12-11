@@ -12,7 +12,18 @@ library(httr)
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
-
+ 
+  if (input$var == "genre"){
+    if (input$all_or_one == "All Years, One Category"){
+      output$scatterPlot <- renderPlot({
+        req(input$xcol, input$ycol, input$colorcol)  # Ensure inputs are not null
+        plot_data(mtcars, input$xcol, input$ycol, input$colorcol)
+      })
+    } else {
+      
+    }
+  }
+  
     output$distPlot <- renderPlot({
 
         # generate bins based on input$bins from ui.R

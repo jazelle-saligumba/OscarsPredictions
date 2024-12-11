@@ -26,11 +26,11 @@ fluidPage(
                    selectInput(input_id = "all_or_one", 
                                label = "Select Filtered of Data", 
                                choices = c("All Years, One Category", "One Year, All Categories"), 
-                               selected = "All Years, One Category")
+                               selected = "All Years, One Category"),
+                   uiOutput(outputId = "dynamic_slider"), # Placeholder for dynamic slider
                  ),
                  mainPanel(
-                   uiOutput(outputId = "dynamic_slider"), # Placeholder for dynamic slider
-                   plotOutput(outputId = "dynamic_plot")  # Placeholder for dynamic plot
+                   plotOutput(outputId = "dynamic_plot"),  # Placeholder for dynamic plot
                  )
                )
       ),
