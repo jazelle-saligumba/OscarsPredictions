@@ -68,15 +68,13 @@ rf_data <- all_data |>
   wider_by_genre() |>
   flatten_lists("production_countries", "country_") |>
   flatten_lists("spoken_languages", "lang_") |>
-  flatten_lists("production_companies", "company_") |>
+  #flatten_lists("production_companies", "company_") |>
   select(-belongs_to_collection) |> # don't need this list column
   # now filter to be since 1975
-  filter(year_ceremony >= 1975, category == "BEST PICTURE")
+  filter(year_ceremony >= 1975, category == "BEST PICTURE") 
 
-# pre-process for static all_data csv
-all_data <- read_csv("all_data.csv")
-rf_data <- all_data |>
-  filter(year_ceremony >= 1975, category == "BEST PICTURE")
+rf_data |>
+  mutate(release_month = as.integer(substr(release_date, 6, 7)))
 ```
 
 ```{r}
@@ -84,7 +82,7 @@ library(tidymodels)
 
 # partition
 set.seed(47)
-movie_split <- initial_split(data)
+movie_split <- initial_split(rf_data)
 movie_train <- training(movie_split)
 movie_test <- testing(movie_split)
 
@@ -92,8 +90,10 @@ movie_test <- testing(movie_split)
 recipe <-
   recipe(winner ~ . , #####
          data = movie_train) |>
-  step_unknown(sex, new_level = "unknown") |> #####
-  step_mutate(year = as.factor(year)) #####
+  step_rm(year_film, ceremony, category, name, film, adult, backdrop_path, homepage, id,
+          imdb_id, original_title, overview, poster_path, production_companies, 
+          release_date, status, tagline, video, year)
+recipe
 
 #model
 movie_rf <- rand_forest(mtry = tune(),
@@ -107,11 +107,10 @@ movie_rf_wflow <- workflow() |>
   add_recipe(recipe)
 
 # CV
-set.seed(234)
 movie_folds <- vfold_cv(movie_train, v = 4)
 
 # parameters
-movie_grid <- grid_regular(mtry(range = c(2,7)), #####
+movie_grid <- grid_regular(mtry(range = c(2,234)), #####
                            trees(range = c(1,500)), #####
                            levels = 5) #####
 
@@ -143,10 +142,36 @@ movie_rf_final
 ```
 
 ```{r}
+# Training error
+preds <- movie_rf_final |>
+  predict(new_data = movie_train) |>
+  cbind(movie_train) |>
+  mutate(winner = factor(winner))
+
+preds |>
+  metrics(truth = winner, estimate = .pred_class) |>
+  filter(.metric == "accuracy")
+preds
+
+conf_matrix <- conf_mat(preds, truth = winner, estimate = .pred_class)
+conf_matrix
+```
+
+
+```{r}
 # Test on testing data
-movie_rf_final |>
+preds <- movie_rf_final |>
   predict(new_data = movie_test) |>
-  cbind(movie_test)
+  cbind(movie_test) |>
+  mutate(winner = factor(winner))
+
+preds |>
+  metrics(truth = winner, estimate = .pred_class) |>
+  filter(.metric == "accuracy")
+preds
+
+conf_matrix <- conf_mat(preds, truth = winner, estimate = .pred_class)
+conf_matrix
 ```
 
 ```{r}
