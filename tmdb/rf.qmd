@@ -66,9 +66,9 @@ rf_data <- all_data |>
   mutate(genre_ids = genres) |>
   select(-genres) |>
   wider_by_genre() |>
-  flatten_lists("production_countries", "country_") |>
-  flatten_lists("spoken_languages", "lang_") |>
-  #flatten_lists("production_companies", "company_") |>
+  flatten_lists("production_countries", top_countries, "country_") |>
+  flatten_lists("spoken_languages", top_languages, "lang_") |>
+  #flatten_lists("production_companies", top_companies "company_") |>
   select(-belongs_to_collection) |> # don't need this list column
   # now filter to be since 1975
   filter(year_ceremony >= 1975, category == "BEST PICTURE") 
@@ -182,7 +182,6 @@ movie_rf_final |>
   extract_fit_parsnip() |>
   vip(geom = "point")
 ```
-
 
 
 
