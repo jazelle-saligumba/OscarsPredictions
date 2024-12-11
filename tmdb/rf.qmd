@@ -69,7 +69,7 @@ rf_data <- all_data |>
   flatten_lists("production_countries", top_countries, "country_") |>
   flatten_lists("spoken_languages", top_languages, "lang_") |>
   #flatten_lists("production_companies", top_companies "company_") |>
-  select(-belongs_to_collection) |> # don't need this list column
+  select(-belongs_to_collection, -production_companies) |> # don't need these list columns
   # now filter to be since 1975
   filter(year_ceremony >= 1975, category == "BEST PICTURE") 
 
