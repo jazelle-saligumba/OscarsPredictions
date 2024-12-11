@@ -1,7 +1,7 @@
 
 
 ```{r}
-# function for unnesting list columns
+# function for unnesting genre list columns
 widen <- function(df) {
   movie_details_df$genre_ids <- map(movie_details_df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
 
@@ -20,9 +20,39 @@ widen <- function(df) {
   
   return(new_df)
 }
+wider_by_genre <- function(df) {
+  # make sure all values are vectors
+  df$genre_ids <- map(df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
+    
+  # now, change all the number values to be genres(char)
+  new_df <- df |>
+    unnest(genre_ids) |> 
+    distinct() |>
+    mutate(genre_ids = genres_dict[as.character(genre_ids)]) |> 
+    filter(!is.na(genre_ids)) |>
+    mutate(valid_id = 1) |> # create binary value for the pivot_wider to use
+    pivot_wider(names_from = genre_ids, values_from = valid_id, 
+                values_fill = 0) # use names_prefix if want "genre_"
+  
+  
+  return(new_df)
+}
 
-# testing the function above
-wide_genre_join_tmdb <- wider_by_genre(join_tmdb)
+# more generic flattening of lists
+flatten_lists <- function(df, feature, prefix) {
+  # make sure all values in the specified column are vectors
+  df[[feature]] <- map(df[[feature]], ~ if (is.list(.)) unlist(.) else .)
+  
+  # now, change all the number values 
+  new_df <- df |> 
+    unnest({{feature}}) |>  # unnest the specified column
+    distinct() |> 
+    mutate(valid_value = 1) |>  # create binary value for pivot_wider
+    pivot_wider(names_from = {{feature}}, values_from = valid_value, 
+                names_prefix = prefix, values_fill = 0)
+  
+  return(new_df)
+}
 ```
 
 
@@ -31,11 +61,17 @@ wide_genre_join_tmdb <- wider_by_genre(join_tmdb)
 # need to widen genres, production_companies, production_countries, spoken_languages
 # predict on year_ceremony, budget, genres, original_language, popularity, production_companies, production_countries, revenue, runtime, spoken_langauges, vote_average, vote_count, release_month
 
-rf_data <- data |>
-  widen("genres", unique(unlist(data[["genres"]]))) |>
-  widen("production_companies", unique(unlist(data[["production_companies"]]))) |>
-  widen("production_countries", unique(unlist(data[["production_countries"]]))) |>
-  widen("spoken_languages", unique(unlist(data[["spoken_langauges"]])))
+rf_data <- all_data |>
+  # first make df wider (flatten all data)
+  mutate(genre_ids = genres) |>
+  select(-genres) |>
+  wider_by_genre() |>
+  flatten_lists("production_countries", "country_") |>
+  flatten_lists("spoken_languages", "lang_") |>
+  flatten_lists("production_companies", "company_") |>
+  select(-belongs_to_collection) |> # don't need this list column
+  # now filter to be since 1975
+  filter(year_ceremony >= 1975, category == "BEST PICTURE")
 ```
 
 ```{r}

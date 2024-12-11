@@ -390,7 +390,7 @@ all_data |>
   flatten_lists("production_countries", "country_") |>
   flatten_lists("spoken_languages", "lang_") |>
   flatten_lists("production_companies", "company_") |>
-  flatten_lists("belongs_to_collection", "collection_")
+  flatten_lists("belongs_to_collection", "collection_") |>
   write.csv("/Users/kellieau/Desktop/School/Pomona/ThirdYear/Fall2024/CompStats/groupB-spotify/tmdb/all_data.csv",
             row.names = FALSE)
 ```
