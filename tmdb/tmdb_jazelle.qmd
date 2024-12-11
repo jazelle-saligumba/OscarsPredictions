@@ -14,7 +14,7 @@ library(jsonlite)
 ```{r}
 url <- "https://api.themoviedb.org/3/authentication"
 
-personal_authorization <- paste0('Bearer ', ADD AUTH TOKEN)
+personal_authorization <- paste0('Bearer ', "")
 
 response <- VERB("GET", url, add_headers('Authorization' =  personal_authorization), 
                  content_type("application/octet-stream"), accept("application/json"))
@@ -28,11 +28,6 @@ oscar_nominees <- read.csv("the_oscar_award.csv")
 ```
 
 ### Search for a movie given title and year (to retrieve movie_id)
-```{r}
-# function to search movie given title and year, calls 2nd search movie (rename to search tmdb or smt) and checks if result is null, if so searches year +1, year -1
-```
-
-
 ```{r}
 # function to search for a movie by title and year
 search_movie <- function(movie_title, year) {
@@ -74,11 +69,6 @@ parasite <- search_movie("Parasite", 2020)
 print(parasite)
 ```
 
-```{r}
-# Test case for the movie "Titanic" (1997)
-titanic <- search_movie("Titanic", 1997)
-print(titanic)
-```
 
 ```{r}
 movie_details <- apply(oscar_nominees, 1, function(row) {
@@ -152,12 +142,6 @@ movie_data <- map_df(unique(movie_details_df$id), search_movie_extra)
 ```
 
 ```{r}
-# look into this
-length(unique(movie_details_df$id))
-length(unique(oscar_nominees$film))
-```
-
-```{r}
 movie_data$year = as.integer(substr(movie_data$release_date, 1, 4))
 ```
 
@@ -168,109 +152,7 @@ all_data <- left_join(oscar_nominees, movie_data, by = c("film" = "title")) |>
   filter(abs(year_film - year) <= 1)
 ```
 
-```{r}
-sum(sapply(all_data$id, is.na))
-```
-
-```{r}
-# all films nominated for 10 categories after 1939
-after_1939 <- all_data |>
-  filter(year_film >= 1939) |>
-  filter(category != "FOREIGN LANGUAGE FILM") |>
-  filter(category == "BEST PICTURE" | category == "DIRECTING" | 
-         category == "ACTOR IN A LEADING ROLE" | category == "ACTRESS IN A LEADING ROLE" |
-         category == "ACTOR IN A SUPPORTING ROLE" | 
-         category == "ACTRESS IN A SUPPORTING ROLE" |
-         category == "WRITING (Original Screenplay)" |
-         category == "WRITING (Adapted Screenplay)" | category == "CINEMATOGRAPHY" |
-         category == "FILM EDITING")
-```
-
-
-```{r}
-# foreign language films nominated for top 10 categories
-international <- all_data |>
-  filter(year_film >= 1939) |>
-  filter(map_lgl(production_countries, ~ !is.null(.))) |>
-  filter(map_lgl(production_countries, ~ !("US" %in% .))) |>
-  filter(category != "FOREIGN LANGUAGE FILM") |>
-  filter(category == "BEST PICTURE" | category == "DIRECTING" | 
-         category == "ACTOR IN A LEADING ROLE" | category == "ACTRESS IN A LEADING ROLE" |
-         category == "ACTOR IN A SUPPORTING ROLE" | 
-         category == "ACTRESS IN A SUPPORTING ROLE" |
-         category == "WRITING (Original Screenplay)" |
-         category == "WRITING (Adapted Screenplay)" | category == "CINEMATOGRAPHY" |
-         category == "FILM EDITING")
-```
-
-```{r}
-# domestic films nominated for top 10 categories
-domestic <- all_data |>
-  filter(year_film >= 1939) |>
-  filter(map_lgl(production_countries, ~ !is.null(.))) |>
-  filter(map_lgl(production_countries, ~ ("US" %in% .))) |>
-  filter(category != "FOREIGN LANGUAGE FILM") |>
-  filter(category == "BEST PICTURE" | category == "DIRECTING" | 
-         category == "ACTOR IN A LEADING ROLE" | category == "ACTRESS IN A LEADING ROLE" |
-         category == "ACTOR IN A SUPPORTING ROLE" | 
-         category == "ACTRESS IN A SUPPORTING ROLE" |
-         category == "WRITING (Original Screenplay)" |
-         category == "WRITING (Adapted Screenplay)" | category == "CINEMATOGRAPHY" |
-         category == "FILM EDITING")
-```
-
-
-````{r}
-international['id'].drop_duplicates() |>
-  summarize(popularity = mean(popularity), winners = mean(as.logical(winner)), 
-            revenue = mean(revenue), rating = mean(vote_average), 
-            num_votes = mean(vote_count))
-```
-
-````{r}
-domestic |>
-  filter(unique(id)) |>
-  summarize(popularity = mean(popularity), winners = mean(as.logical(winner)), 
-            revenue = mean(revenue), rating = mean(vote_average), 
-            num_votes = mean(vote_count))
-```
-
-```{r}
-after_1939 |>
-  group_by(year_film, category) |>
-  # compare intl films to domestic films nominated for same category in same year
-  filter()
-```
-
-
-```{r}
-ms <- all_data |>
-  filter(film == "Marriage Story")
-```
-
-
-```{r}
-international |>
-  filter(year_ceremony == 2024, category == "BEST PICTURE") |>
-  summarize(popularity = mean(popularity), winners = mean(as.logical(winner)), 
-            budget = mean(budget), revenue = mean(revenue), rating = mean(vote_average), 
-            num_votes = mean(vote_count))
-```
-```{r}
-domestic |>
-  filter(year_ceremony == 2024, category == "BEST PICTURE") |>
-  summarize(popularity = mean(popularity), winners = mean(as.logical(winner)), 
-          budget = mean(budget), revenue = mean(revenue), rating = mean(vote_average), 
-          num_votes = mean(vote_count))
-```
-
-```{r}
-all_data |>
-  filter(year_ceremony == 2021, category == "BEST PICTURE")
-```
-
-
-
+----- run up to here then switch to rf.qmd for rf data preprocessing ------
 
 
 
@@ -364,6 +246,7 @@ flatten_lists(fightclub, "production_countries", "country_")
 flatten_lists(fightclub, "spoken_languages", "lang_")
 flatten_lists(fightclub, "production_companies", "company_")
 ```
+
 
 ###Wrangling/Preparing for Model 
 ```{r}
@@ -522,11 +405,15 @@ rf_data <- all_data |>
 
 
 ```{r}
+data <- all_data
+```
+
+```{r}
 plot_feature <- function(feature, nom) {
   data |>
-    filter(category == nom, winner == "True") |>
+    filter(category == nom) |>
     ggplot() +
-    geom_jitter(aes(x = year, y = !!sym(feature)))
+    geom_jitter(aes(x = year, y = !!sym(feature), color = winner))
 }
 ```
 
@@ -544,7 +431,7 @@ data |>
 
 ```{r}
 data |>
-  filter(winner == "True", category == "BEST PICTURE") |>
+  filter(category == "BEST PICTURE") |>
   arrange(desc(budget))
 ```
 
