@@ -72,6 +72,11 @@ rf_data <- all_data |>
   select(-belongs_to_collection) |> # don't need this list column
   # now filter to be since 1975
   filter(year_ceremony >= 1975, category == "BEST PICTURE")
+
+# pre-process for static all_data csv
+all_data <- read_csv("all_data.csv")
+rf_data <- all_data |>
+  filter(year_ceremony >= 1975, category == "BEST PICTURE")
 ```
 
 ```{r}
