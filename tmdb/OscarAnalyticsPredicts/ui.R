@@ -19,12 +19,18 @@ fluidPage(
       tabPanel("Data Visualization",
                sidebarLayout(
                  sidebarPanel(
-                   selectInput("var", "Select variable to plot", 
+                   selectInput(input_id = "var", 
+                               label = "Select variable to plot", 
                                choices = c("genre", "release month", "budget"), 
-                               selected = "genre")
+                               selected = "genre"), 
+                   selectInput(input_id = "all_or_one", 
+                               label = "Select Filtered of Data", 
+                               choices = c("All Years, One Category", "One Year, All Categories"), 
+                               selected = "All Years, One Category")
                  ),
                  mainPanel(
-                   plotOutput("plot")
+                   uiOutput(outputId = "dynamic_slider"), # Placeholder for dynamic slider
+                   plotOutput(outputId = "dynamic_plot")  # Placeholder for dynamic plot
                  )
                )
       ),
