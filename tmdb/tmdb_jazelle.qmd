@@ -352,7 +352,6 @@ flatten_lists <- function(df, feature, prefix) {
   new_df <- df |> 
     unnest({{feature}}) |>  # unnest the specified column
     distinct() |> 
-    filter(!is.na(.data[[feature]])) |> 
     mutate(valid_value = 1) |>  # create binary value for pivot_wider
     pivot_wider(names_from = {{feature}}, values_from = valid_value, 
                 names_prefix = prefix, values_fill = 0)
@@ -384,12 +383,16 @@ write.csv(wider_by_genre(movie_details_df),
           "/Users/kellieau/Desktop/School/Pomona/ThirdYear/Fall2024/CompStats/groupB-spotify/tmdb/movie_details_df.csv", 
           row.names = FALSE)
 
-#doesn't quite work, need to flatten the all_data.. 
-#all_data |>
- # mutate(genre_ids = genres) |>
- # select(-genres) |>
- # wider_by_genre() |>
- # write.csv("/Users/kellieau/Desktop/School/Pomona/ThirdYear/Fall2024/CompStats/groupB-spotify/tmdb/all_data.csv", row.names = FALSE)
+all_data |>
+  mutate(genre_ids = genres) |>
+  select(-genres) |>
+  wider_by_genre() |>
+  flatten_lists("production_countries", "country_") |>
+  flatten_lists("spoken_languages", "lang_") |>
+  flatten_lists("production_companies", "company_") |>
+  flatten_lists("belongs_to_collection", "collection_")
+  write.csv("/Users/kellieau/Desktop/School/Pomona/ThirdYear/Fall2024/CompStats/groupB-spotify/tmdb/all_data.csv",
+            row.names = FALSE)
 ```
 
 ```{r, eval=FALSE}
