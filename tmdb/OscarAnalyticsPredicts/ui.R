@@ -30,6 +30,7 @@ fluidPage(
                    uiOutput(outputId = "dynamic_slider"), # Placeholder for dynamic slider
                  ),
                  mainPanel(
+                   textOutput(outputId = "plotTitle")
                    plotOutput(outputId = "dynamic_plot"),  # Placeholder for dynamic plot
                  )
                )
