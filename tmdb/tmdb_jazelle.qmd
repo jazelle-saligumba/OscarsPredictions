@@ -93,9 +93,6 @@ input_fields <- c("adult", "backdrop_path", "belongs_to_collection", "budget", "
 ```
 
 ```{r}
-```
-
-```{r}
 search_movie_extra <- function(auth, movie_id, fields) {
   parse_field <- function(json_data, field) {
     return(ifelse(!is.null(json_data[[field]]), json_data[[field]], NA))
@@ -132,7 +129,6 @@ search_movie_extra <- function(auth, movie_id, fields) {
     return(data.frame())
   }
 }
-
 ```
 
 ```{r}
