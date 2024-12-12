@@ -19,34 +19,37 @@ fluidPage(
       tabPanel("Data Visualization",
                sidebarLayout(
                  sidebarPanel(
-                   selectInput(input_id = "var", 
-                               label = "Select variable to plot", 
-                               choices = c("genre", "release month", "budget"), 
-                               selected = "genre"), 
-                   selectInput(input_id = "all_or_one", 
-                               label = "Select Filtered of Data", 
-                               choices = c("All Years, One Category", "One Year, All Categories"), 
-                               selected = "All Years, One Category"),
-                   uiOutput(outputId = "dynamic_slider"), # Placeholder for dynamic slider
+                   selectInput(
+                     inputId = "variable", 
+                     label = "Choose a Variable to Plot", 
+                     choices = c("Genre" = "genre", "Release Day" = "release_day", "Budget" = "budget")
+                   ),
+                   selectInput(
+                     inputId = "timeframe", 
+                     label = "Choose Timeframe", 
+                     choices = c("All Years", "One Year")
+                   ),
+                   uiOutput("dynamic_slider"),  # Dynamic slider placeholder
+                   #actionButton(inputId = "render", label = "Render Plot")  # Render button
                  ),
+                 
                  mainPanel(
-                   textOutput(outputId = "plotTitle")
-                   plotOutput(outputId = "dynamic_plot"),  # Placeholder for dynamic plot
-                 )
-               )
-      ),
-      
-      # Tab for RF predictions
-      tabPanel("Predicting",
-               sidebarLayout(
-                 sidebarPanel(
-                   textInput(inputId="input", label="Enter a 2024 movie", placeholder = "ex. Wicked"),
-                   #actionButton("predict", "Predict")
-                 ),
-                 mainPanel(
-                   tableOutput("word_freq_table")
+                   plotOutput(outputId = "dynamic_plot")  # Plot output placeholder
                  )
                )
       )
+      
+      # Tab for RF predictions
+#      tabPanel("Predicting",
+#               sidebarLayout(
+#                 sidebarPanel(
+#                   textInput(inputId="input", label="Enter a 2024 movie", placeholder = "ex. Wicked"),
+                   #actionButton("predict", "Predict")
+#                 ),
+#                 mainPanel(
+#                   tableOutput("word_freq_table")
+ #                )
+#               )
+#      )
     ),
 )
