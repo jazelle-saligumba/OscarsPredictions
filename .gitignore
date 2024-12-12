@@ -51,3 +51,4 @@ rsconnect/
 
 .vdoc.r
 .DS_Store
+.Renviron

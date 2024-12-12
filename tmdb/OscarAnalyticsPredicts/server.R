@@ -19,6 +19,7 @@ library(tidymodels)
 function(input, output, session) {
   #--------------------------- Graphing Functions ------------------------------
   graph_data_pre75 <- readRDS("graph_data_pre75.rds")
+  genres_dict <- readRDS("genres_dict.rds")
   
   # graphing the genre data (one year, all categories)
   graph_genre_one_year <- function(selected_year){
@@ -171,7 +172,6 @@ function(input, output, session) {
     input$movie
   })
   
-  genres_dict <- readRDS("genres_dict.rds")
   genres_list <- readRDS("genres_list.rds")$name
   top_countries <- c("US", "GB", "FR",  "DE", "IT", "CA")
   top_languages <- c("English", "French", "German", "Spanish", "Italian")
