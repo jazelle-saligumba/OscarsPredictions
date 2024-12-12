@@ -87,7 +87,20 @@ saveRDS(rf_data, "rf_data.rds")
 all_data <- readRDS("all_Data.rds")
 #rf_data <- rf_data |>
   #mutate(release_month = as.integer(substr(release_date, 6, 7)))
-rf_data
+```
+
+```{r}
+rf_data <- readRDS("rf_data.rds") |>
+  mutate(won_at_least_one = ifelse(won_at_least_one, TRUE, FALSE))
+```
+
+```{r}
+rf_data <- rf_data |>
+  ungroup() |>
+  distinct(film, .keep_all = TRUE) |>
+  select(-year_film, -year_ceremony, -ceremony, -category, -name, -film, -winner, -adult, 
+         -backdrop_path, -homepage, -id, -imdb_id, -original_title, -overview, -poster_path, 
+         -release_date, -status, -tagline, -video, -original_language)
 ```
 
 
@@ -103,20 +116,15 @@ movie_test <- testing(movie_split)
 # recipe
 recipe <-
   recipe(won_at_least_one ~ . ,
-  #recipe(winner ~ budget + Drama + release_month,
-  #recipe(winner ~ vote_average + vote_count + popularity + revenue + runtime + budget,
-         data = movie_train) |>
-  step_rm(year_film, year_ceremony, ceremony, category, name, film, adult, backdrop_path, 
-          homepage, id, imdb_id, original_title, overview, poster_path, 
-          release_date, status, tagline, video)
-#recipe <-
-  #recipe(winner ~ budget + Drama + release_month,
-         #data = movie_train) 
+         data = movie_train) #|>
+  #step_rm(year_film, year_ceremony, ceremony, category, name, film, winner, adult, backdrop_path, 
+          #homepage, id, imdb_id, original_title, overview, poster_path, 
+          #release_date, status, tagline, video, original_language) #####
 
 #model
 movie_rf <- rand_forest(mtry = tune(),
-                        trees = tune(), ) |>
-                        #min_n = tune()) |>
+                        trees = tune(),
+                        min_n = tune()) |>
   set_engine("ranger", importance = "permutation") |>
   set_mode("classification")
 
@@ -129,10 +137,10 @@ movie_rf_wflow <- workflow() |>
 movie_folds <- vfold_cv(movie_train, v = 4)
 
 # parameters
-movie_grid <- grid_regular(mtry(range = c(1,59)), #####
+movie_grid <- grid_regular(mtry(range = c(1,40)),
                            trees(range = c(10,500)),
-                           #min_n(range = c(1,20)),#####
-                           levels = 5) #####
+                           min_n(range = c(1,20)),
+                           levels = 5) 
 
 # tune
 movie_rf_tune <- 
@@ -141,9 +149,6 @@ movie_rf_tune <-
             grid = movie_grid)
 
 select_best(movie_rf_tune, metric = "accuracy")
-```
-```{r}
-recipe
 ```
 
 ```{r}
@@ -168,7 +173,7 @@ movie_rf_final
 # Training error
 preds <- movie_rf_final |>
   predict(new_data = movie_train) |>
-  cbind(movie_train) |>
+  cbind(movie_train) #|>
   #mutate(winner = factor(winner))
 
 preds |>
@@ -185,8 +190,8 @@ conf_matrix
 # Test on testing data
 preds <- movie_rf_final |>
   predict(new_data = movie_test) |>
-  cbind(movie_test) |>
-  mutate(winner = factor(winner))
+  cbind(movie_test) #|>
+  #mutate(winner = factor(winner))
 
 preds |>
   metrics(truth = won_at_least_one, estimate = .pred_class) |>
@@ -206,11 +211,13 @@ movie_rf_final |>
   vip(geom = "point")
 ```
 
+```{r}
+# save model
+saveRDS(movie_rf_final, "movie_rf_final.rds")
+```
 
 
 
-- save object (save rds)
-- 
 
 
 
