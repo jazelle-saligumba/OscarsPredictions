@@ -30,7 +30,7 @@ oscar_nominees <- read.csv("the_oscar_award.csv")
 ### Search for a movie given title and year (to retrieve movie_id)
 ```{r}
 # function to search for a movie by title and year
-search_movie <- function(movie_title, year) {
+search_movie <- function(auth, movie_title, year) {
   url <- "https://api.themoviedb.org/3/search/movie"
   
   # parameters for the query
@@ -39,7 +39,7 @@ search_movie <- function(movie_title, year) {
     year = as.character(year)
   )
   
-  response <- VERB("GET", url, query = queryString, add_headers('Authorization' = personal_authorization), content_type("application/octet-stream"), accept("application/json"))
+  response <- VERB("GET", url, query = queryString, add_headers('Authorization' = auth), content_type("application/octet-stream"), accept("application/json"))
   
   # check for response status
   if (http_error(response)) {
@@ -65,14 +65,15 @@ search_movie <- function(movie_title, year) {
 
 ```{r}
 # test case for parasite
-parasite <- search_movie("Parasite", 2020)
+parasite <- search_movie(personal_authorization, "Parasite", 2020)
 print(parasite)
 ```
 
 
+
 ```{r}
 movie_details <- apply(oscar_nominees, 1, function(row) {
-  search_movie(row["film"], row["year_film"])
+  search_movie(personal_authorization, row["film"], row["year_film"])
 })
 
 #combine all calls into one df
@@ -81,25 +82,30 @@ movie_details_df <- do.call(rbind, movie_details)
 movie_details_df
 ```
 
+```{r}
+saveRDS(search_movie_extra, "search_movie_extra.rds")
+```
+
 
 ### Search for a movie's additional details given movie_id
 ```{r}
-fields <- c("adult", "backdrop_path", "belongs_to_collection", "budget", "genres", "homepage", "id", "imdb_id", "original_language", "original_title", "overview", "popularity", "poster_path", "production_companies", "production_countries", "release_date", "revenue", "runtime", "spoken_languages", "status", "tagline", "title", "video", "vote_average", "vote_count")
+input_fields <- c("adult", "backdrop_path", "belongs_to_collection", "budget", "genres", "homepage", "id", "imdb_id", "original_language", "original_title", "overview", "popularity", "poster_path", "production_companies", "production_countries", "release_date", "revenue", "runtime", "spoken_languages", "status", "tagline", "title", "video", "vote_average", "vote_count")
 ```
 
 ```{r}
-parse_field <- function(json_data, field) {
-  return(ifelse(!is.null(json_data[[field]]), json_data[[field]], NA))
-}
 ```
 
 ```{r}
-search_movie_extra <- function(movie_id) {
+search_movie_extra <- function(auth, movie_id, fields) {
+  parse_field <- function(json_data, field) {
+    return(ifelse(!is.null(json_data[[field]]), json_data[[field]], NA))
+  }
+  
   url <- paste0("https://api.themoviedb.org/3/movie/", movie_id)
   
   # Make the GET request with the Authorization header and JSON accept header
   response <- GET(url, 
-                  add_headers('Authorization' = personal_authorization),
+                  add_headers('Authorization' = auth),
                   content_type("application/octet-stream"), 
                   accept("application/json"))
   
@@ -131,14 +137,16 @@ search_movie_extra <- function(movie_id) {
 
 ```{r}
 # test case for fightclub
-fightclub <- search_movie_extra(550)
+fightclub <- search_movie_extra(personal_authorization, 550, input_fields)
 print(fightclub)
 ```
 
 ### Function to parse through movie_details_df for extra functions
 
 ```{r}
-movie_data <- map_df(unique(movie_details_df$id), search_movie_extra)
+movie_data <- map_df(unique(movie_details_df$id), partial(search_movie_extra, 
+                                                          auth = personal_authorization, 
+                                                          fields = input_fields))
 ```
 
 
@@ -153,11 +161,12 @@ movie_data$release_month = as.integer(substr(movie_data$release_date, 6, 7))
 all_data <- left_join(oscar_nominees, movie_data, by = c("film" = "title")) |>
   filter(abs(year_film - release_year) <= 1) |>
   group_by(film, year_film) |>
-  mutate(won_at_least_one = ifelse(sum(winner == "True") >= 1, TRUE, FALSE))
+  mutate(won_at_least_one = ifelse(sum(winner == "True") >= 1, TRUE, FALSE)) |>
+  ungroup()
 ```
 
 ```{r}
-saveRDS(all_data, "all_data.rds")
+saveRDS(genres_dict, "genres_dict.rds")
 ```
 
 ----- run up to here then switch to rf.qmd for rf data preprocessing ------
