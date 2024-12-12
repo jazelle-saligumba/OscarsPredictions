@@ -223,6 +223,10 @@ function(input, output, session) {
   output$data <- renderText({
     data$overview
   })
+  
+  output$poster <- renderUI({
+    img(src = paste0("https://image.tmdb.org/t/p/w500", data$poster_path), height = "600px", width = "auto")
+  })
 
   data <- data |>
     mutate(genre_ids = genres) |>

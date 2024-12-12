@@ -47,9 +47,10 @@ fluidPage(
             actionButton("predict", "Predict")
           ),
           mainPanel(
-            textOutput("movie"),
-            textOutput("data"),
-            textOutput("pred")
+            fluidRow(
+              column(6, h3(textOutput("movie")), textOutput("data"), textOutput("pred")),
+              column(6, uiOutput("poster"))
+            )
           )
         )
       )
