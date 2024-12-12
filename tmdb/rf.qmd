@@ -61,10 +61,8 @@ rf_data <- all_data |>
   wider_by_genre() |>
   flatten_lists("production_countries", top_countries, "country_") |>
   flatten_lists("spoken_languages", top_languages, "lang_") |>
-  #flatten_lists("production_companies", top_companies "company_") |>
-  select(-belongs_to_collection, -production_companies) |> # don't need these list columns
-  # now filter to be since 1975
-  filter(year_ceremony >= 1975) 
+  select(-belongs_to_collection, -production_companies) |> 
+  filter(year_ceremony >= 1975) # filter for last 50 years
 ```
 
 ```{r}
@@ -104,10 +102,7 @@ movie_test <- testing(movie_split)
 # recipe
 recipe <-
   recipe(won_at_least_one ~ . ,
-         data = movie_train) #|>
-  #step_rm(year_film, year_ceremony, ceremony, category, name, film, winner, adult, backdrop_path, 
-          #homepage, id, imdb_id, original_title, overview, poster_path, 
-          #release_date, status, tagline, video, original_language) #####
+         data = movie_train)
 
 #model
 movie_rf <- rand_forest(mtry = tune(),

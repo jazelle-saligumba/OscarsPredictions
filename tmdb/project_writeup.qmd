@@ -3,15 +3,22 @@ title: "MATH 154 - Final Project Writeup"
 authors: "Jazelle Saligumba, Kellie Au, Kartika Santoso"
 subtitle: "due on Thursday, December 12, 2024"
 format: pdf
+toc: true
+bibliography: references.bib
 execute:
   warning: false
   message: false
+
 --- 
 
 
 ## Introduction / Motivation (include a visualization maybe)
 
-- q1, q2
+The Academy Awards, colloquially known as the Oscars, are an iconic American cultural institution approaching its century-long anniversary. As a defining force in Hollywood, the arts, and the global audience it captivates, the Oscars have evolved into the foremost arbiter in determining which films are immortalized in history. Over time, the ceremony has come to shape not only the landscape of cinema but also public perception of artistic achievement. 
+
+For as long as the Oscars has existed, the concept of 'Oscar Bait' continuously makes its yearly occurrence - the idea that certain movies are intentionally created with the Academy's specific tastes to win an Oscar as part of its marketing strategy. There are certain factors such as having a late release date which approaches the end of the Oscar submission deadline, being a drama, historical piece, or a biopic, and a star-studded cast and director which aligns with most Oscar winners. [@Qingru2021]
+
+Considering the Oscars has become the primary authority of American film taste, it is important to critically consider the media which we consume, and the people behind the Academy who decide what becomes gilded for the rest of time. As we explore what makes an Oscar Award winner versus a nominee, we question the authenticity of such wins, especially when there is a prominent trend of who wins an Oscar award, and the recorded phenomena of directors gaming the system to increase their odds to win one. In this chicken-and-egg situation of which came first, it is important to recognize that the winners may not purely be based on the film's quality, but its features which cater to the Academy. 
 
 ## Data
 
@@ -19,7 +26,7 @@ We began by using this [dataset of Oscar nominees and winners from 1927-2024](ht
 
 ```{r}
 library(tidyverse)
-oscar_nominees <- read.csv("./tmdb/the_oscar_award.csv")
+oscar_nominees <- read.csv("the_oscar_award.csv")
 ```
 
 
@@ -232,7 +239,7 @@ top_languages <- c("English", "French", "German", "Spanish", "Italian")
 top_companies <- c(174, 4, 21, 25, 5)
 ```
 
-```{r eval = FALSE}
+```{r Data Preprocessing, eval = FALSE}
 # preprocess data for nominees since 1975
 rf_data <- all_data |>
   # first make df wider (flatten all data)
@@ -241,51 +248,50 @@ rf_data <- all_data |>
   wider_by_genre() |>
   flatten_lists("production_countries", top_countries, "country_") |>
   flatten_lists("spoken_languages", top_languages, "lang_") |>
-  #flatten_lists("production_companies", top_companies "company_") |>
-  select(-belongs_to_collection, -production_companies) |> # don't need these list columns
-  # now filter to be since 1975
-  filter(year_ceremony >= 1975) 
+  select(-belongs_to_collection, -production_companies) |> 
+  filter(year_ceremony >= 1975) # filter for last 50 years
 ```
 
-```{r}
+```{r echo = FALSE}
+# Read in previously loaded data to avoid waiting for API calls
+rf_data <- readRDS("rf_data.rds")
+```
+
+```{r Data Preprocessing 2}
 rf_data <- rf_data |>
   mutate(won_at_least_one = as.factor(won_at_least_one))
-```
 
-```{r}
 rf_data <- rf_data |>
   ungroup() |>
   distinct(film, .keep_all = TRUE) |>
-  select(-year_film, -year_ceremony, -ceremony, -category, -name, -film, -winner, -adult, 
-         -backdrop_path, -homepage, -id, -imdb_id, -original_title, -overview, -poster_path, 
-         -release_date, -status, -tagline, -video, -original_language)
+  select(-year_film, -year_ceremony, -ceremony, -category, -name, -film, -winner, 
+         -adult, -backdrop_path, -homepage, -id, -imdb_id, -original_title, -overview, -poster_path, -release_date, -status, -tagline, -video, -original_language)
 ```
 
-```{r}
+Now that our data has been preprocessed, we are ready to train a model. We also perform cross-validation on the `mtry`, `trees`, and `min_n` parameters. 
+
+```{r Training a Random Forest, eval = FALSE}
 library(tidymodels)
 
-# partition
+# Partition data into train / test sets
 set.seed(47)
 movie_split <- initial_split(rf_data)
 movie_train <- training(movie_split)
 movie_test <- testing(movie_split)
 
-# recipe
+# Recipe
 recipe <-
   recipe(won_at_least_one ~ . ,
-         data = movie_train) #|>
-  #step_rm(year_film, year_ceremony, ceremony, category, name, film, winner, adult, backdrop_path, 
-          #homepage, id, imdb_id, original_title, overview, poster_path, 
-          #release_date, status, tagline, video, original_language) #####
+         data = movie_train)
 
-#model
+# Model
 movie_rf <- rand_forest(mtry = tune(),
                         trees = tune(),
                         min_n = tune()) |>
   set_engine("ranger", importance = "permutation") |>
   set_mode("classification")
 
-# workflow
+# Workflow
 movie_rf_wflow <- workflow() |>
   add_model(movie_rf) |>
   add_recipe(recipe)
@@ -293,13 +299,13 @@ movie_rf_wflow <- workflow() |>
 # CV
 movie_folds <- vfold_cv(movie_train, v = 4)
 
-# parameters
+# Tuning parameters
 movie_grid <- grid_regular(mtry(range = c(1,40)),
                            trees(range = c(10,500)),
                            min_n(range = c(1,20)),
                            levels = 5) 
 
-# tune
+# Tune (CV)
 movie_rf_tune <- 
   movie_rf_wflow |>
   tune_grid(resamples = movie_folds,
@@ -308,15 +314,13 @@ movie_rf_tune <-
 select_best(movie_rf_tune, metric = "accuracy")
 ```
 
-```{r}
+After performing CV, we can select the best model and finalize it.
+
+```{r Finalize Model, eval = FALSE}
 movie_rf_best <- finalize_model(
   movie_rf,
   select_best(movie_rf_tune, metric = "accuracy"))
 
-movie_rf_best
-```
-
-```{r}
 movie_rf_final <-
   workflow() |>
   add_model(movie_rf_best) |>
@@ -326,38 +330,23 @@ movie_rf_final <-
 movie_rf_final
 ```
 
-```{r}
-# Training error
-preds <- movie_rf_final |>
-  predict(new_data = movie_train) |>
-  cbind(movie_train) #|>
-  #mutate(winner = factor(winner))
+Now that we have finalized our model, we can predict on our test data to see how well our model does on unseen data. 
 
-preds |>
-  metrics(truth = won_at_least_one, estimate = .pred_class) |>
-  filter(.metric == "accuracy")
-preds
-
-conf_matrix <- conf_mat(preds, truth = won_at_least_one, estimate = .pred_class)
-conf_matrix
-```
-
-
-```{r}
+```{r Test Accuracy, eval = FALSE}
 # Test on testing data
 preds <- movie_rf_final |>
   predict(new_data = movie_test) |>
-  cbind(movie_test) #|>
-  #mutate(winner = factor(winner))
+  cbind(movie_test)
 
 preds |>
   metrics(truth = won_at_least_one, estimate = .pred_class) |>
   filter(.metric == "accuracy")
-preds
 
 conf_matrix <- conf_mat(preds, truth = won_at_least_one, estimate = .pred_class)
 conf_matrix
 ```
+
+We observe that our model has a 72% accuracy rate on our test data. From our confusion matrix, we see that the true positive rate is 74% and the true negative rate is 94%. Note that there are much fewer movies that win Oscars than are nominated, so as seen in the confusion matrix, there are much more "False" observations in our data than "True" observations, causing the skew towards "False". 
 
 ## Ethical Considerations
 
@@ -424,15 +413,21 @@ overarching questions: who wins the oscars? (oscar formula and international mov
 
 3. What are your findings? What kind of statistical computations (if any) have you done to support those conclusions? Again, while the R code will show how the calculation was performed, it is up to you to interpret, in English sentences, the results of these calculations. Do not forget about units, axis labels, etc.
 
-- 
+- Oscar bait is lowkey real! 
+  - release day is later in the year
+  - genres to be released are often genre, historical pieces
 
 4. What are the limitations of your work? Be clear so that others do not misinterpret your findings.
 
+- Our work is limited by the fact that we do not account for movies that were not recognized as an Oscar nominee
+  - hence, we don't have a third dataset/column that tells us qualities of movies that are not nominated. 
+  - so our RF, that is predicting movies that have yet to be nominated is heavily limited.
+- API has some corrupted values (e.g. budget may be incorrect and genre is interpreted) since it is user informed
 - 
 
 5. To what population do your results apply? Do they generalize? Could your work be extended with more data or computational power or time to analyze? How could your study be improved? Suggesting plausible extensions don’t weaken your work – they strengthen it by connecting it to future work.
 
-- Population = All Movies ??
+- Population = Movies that are nominated for an Oscar Award, no as of now they do not generalize
 - With more data, we'd be able to understand more aspects of movies and come up with better model
   - ability to investigate more aspects of the movie (e.g. data on the actors/directors/producers involved in the film)
   - gathering data on movies that were NOT nominated would also be really helpful
