@@ -23,13 +23,16 @@ graph_genre_one_year <- function(selected_year){
     unnest(genre_ids) |>
     distinct() |>
     mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
-    ggplot(aes(x = genre_ids, fill = winner)) + 
+    ggplot(aes(x = genre_ids, fill = winner, alpha = winner)) + 
     geom_bar(position = "stack") +
     theme_minimal() + 
-    scale_fill_manual(values = c("False" = "gray", "True" = "#af9150")) + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    scale_fill_manual(values = c("False" = "black", "True" = "#af9150")) + 
+    scale_alpha_manual(values = c("False" = 0.9, "True" = 1)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title = element_text(color = "black", face = "bold"), # Dark and bold axis titles
+          axis.text = element_text(color = "black"))                # Dark axis text)
 }
-graph_genre_one_year(2020)
+graph_genre_one_year(2024)
 ```
 
 ```{r}
@@ -40,10 +43,14 @@ graph_genre_all_years <- function(){
     unnest(genre_ids) |>
     distinct() |>
     mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
-    ggplot(aes(x = year_film, y = genre_ids, color = winner)) + 
-    geom_jitter(position = position_jitter(width = 0.1, height = 0.2)) +
-    scale_color_manual(values = c("True" = "gold", "False" = "#D4D4D4")) + 
-    theme_minimal() 
+    ggplot(aes(x = year_film, y = genre_ids, color = winner, alpha = winner)) + 
+    geom_jitter(position = position_jitter(width = 0.1, height = 0.2),
+                size = 2) +
+    scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
+    scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
+    theme_minimal() + 
+    theme(axis.title = element_text(color = "black", face = "bold"), # Dark and bold axis titles
+          axis.text = element_text(color = "black"))
 }
 graph_genre_all_years()
 ```
@@ -76,10 +83,14 @@ graph_one_year_box("budget", 2020)
 graph_all_years <- function(feature){
   graph_data_pre75 |>
     filter(category == "BEST PICTURE") |>
-    ggplot(aes(x = year_film, y = !!sym(feature), color = winner)) +
-    geom_point() + 
-    scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
-    theme_minimal()
+    ggplot(aes(x = year_film, y = !!sym(feature), color = winner, alpha = winner)) +
+    geom_jitter(position = position_jitter(height = 0.1),
+                size = 2) + 
+    scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
+    scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
+    theme_minimal() + 
+    theme(axis.title = element_text(color = "black", face = "bold"), # Dark and bold axis titles
+          axis.text = element_text(color = "black"))
 }
 graph_all_years("release_day_val")
 graph_all_years("budget")
