@@ -39,21 +39,28 @@ wider_by_genre <- function(df) {
 }
 
 # more generic flattening of lists
-flatten_lists <- function(df, feature, prefix) {
+flatten_lists <- function(df, feature, top_vector, prefix) {
   # make sure all values in the specified column are vectors
   df[[feature]] <- map(df[[feature]], ~ if (is.list(.)) unlist(.) else .)
-  
+  df$feature[is.null(df$feature)] <- NA
+
   # now, change all the number values 
   new_df <- df |> 
     unnest({{feature}}) |>  # unnest the specified column
-    distinct() |> 
-    mutate(valid_value = 1) |>  # create binary value for pivot_wider
-    
-    pivot_wider(names_from = {{feature}}, values_from = valid_value, 
+    mutate(valid_value = 1, # create binary value for pivot_wider
+           temp_feature = case_when(
+             .data[[feature]] %in% top_vector ~ as.character(.data[[feature]]), 
+             TRUE ~ "Other")) |>  
+    select(-{{feature}}, -feature) |>
+    distinct() |>
+    pivot_wider(names_from = temp_feature, values_from = valid_value, 
                 names_prefix = prefix, values_fill = 0)
   
   return(new_df)
 }
+top_countries <- c("US", "GB", "FR",  "DE", "IT", "CA")
+top_languages <- c("English", "French", "German", "Spanish", "Italian")
+top_companies <- c(174, 4, 21, 25, 5)
 ```
 
 
