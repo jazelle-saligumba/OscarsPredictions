@@ -53,18 +53,7 @@ all_data <- readRDS("all_data.rds")
 ```
 
 ```{r}
-test <-all_data |>
-  filter(film == "$1,000 a Minute" | film == "...And Justice for All") |>
-  mutate(genre_ids = genres) |>
-  select(-genres) |>
-  wider_by_genre()
-```
-
-
-```{r}
-# preprocess data for best picture winners since 1975
-# need to widen genres, production_companies, production_countries, spoken_languages
-# predict on year_ceremony, budget, genres, original_language, popularity, production_companies, production_countries, revenue, runtime, spoken_langauges, vote_average, vote_count, release_month
+# preprocess data for nominees since 1975
 rf_data <- all_data |>
   # first make df wider (flatten all data)
   mutate(genre_ids = genres) |>
@@ -77,6 +66,7 @@ rf_data <- all_data |>
   # now filter to be since 1975
   filter(year_ceremony >= 1975) 
 ```
+
 ```{r}
 saveRDS(rf_data, "rf_data.rds")
 ```
@@ -85,13 +75,11 @@ saveRDS(rf_data, "rf_data.rds")
 
 ```{r}
 all_data <- readRDS("all_Data.rds")
-#rf_data <- rf_data |>
-  #mutate(release_month = as.integer(substr(release_date, 6, 7)))
 ```
 
 ```{r}
 rf_data <- readRDS("rf_data.rds") |>
-  mutate(won_at_least_one = ifelse(won_at_least_one, TRUE, FALSE))
+  mutate(won_at_least_one = as.factor(won_at_least_one))
 ```
 
 ```{r}
