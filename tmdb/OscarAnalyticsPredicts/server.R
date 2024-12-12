@@ -28,11 +28,16 @@ function(input, output, session) {
       unnest(genre_ids) |>
       distinct() |>
       mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
-      ggplot(aes(x = genre_ids, fill = winner)) + 
+      ggplot(aes(x = genre_ids, fill = winner, alpha = winner)) + 
       geom_bar(position = "stack") +
       theme_minimal() + 
-      scale_fill_manual(values = c("False" = "gray", "True" = "#af9150")) + 
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      scale_fill_manual(values = c("False" = "black", "True" = "#af9150")) + 
+      scale_alpha_manual(values = c("False" = 0.9, "True" = 1)) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1),
+            axis.title = element_text(size = 16, color = "black", face = "bold"), # Dark and bold axis titles
+            axis.text = element_text(size = 12, color = "black"),
+            legend.text = element_text(size = 12,  color = "black"), # Legend text font size
+            legend.title = element_text(size = 16,  color = "black", face = "bold"))                # Dark axis text)
   }
   
   # graphing the genre data (all years, one category)
@@ -42,30 +47,48 @@ function(input, output, session) {
       unnest(genre_ids) |>
       distinct() |>
       mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
-      ggplot(aes(x = year_film, y = genre_ids, color = winner)) + 
-      geom_jitter(position = position_jitter(width = 0.1, height = 0.2)) +
-      scale_color_manual(values = c("True" = "gold", "False" = "#D4D4D4")) + 
-      theme_minimal() 
+      ggplot(aes(x = year_film, y = genre_ids, color = winner, alpha = winner)) + 
+      geom_jitter(position = position_jitter(width = 0.1, height = 0.2),
+                  size = 3) +
+      scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
+      scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
+      theme_minimal() + 
+      theme(axis.title = element_text(size = 16, color = "black", face = "bold"), # Dark and bold axis titles
+            axis.text = element_text(size = 12, color = "black"),
+            legend.text = element_text(size = 12,  color = "black"), # Legend text font size
+            legend.title = element_text(size = 16,  color = "black", face = "bold"))    
   }
   
   # graphing the release, budget data (one year, all categories) 
   graph_one_year_scatter <- function(feature, selected_year) {
     graph_data_pre75 |>
       filter(year_ceremony == selected_year) |>
-      ggplot(aes(x = !!sym(feature), y = 0, color = winner)) +
-      geom_jitter(position = position_jitter(height = 0.1)) + 
-      scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
-      theme_minimal()
+      ggplot(aes(x = !!sym(feature), y = 0, color = winner, alpha = winner)) +
+      geom_jitter(position = position_jitter(height = 0.1),
+                  size = 3) + 
+      scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
+      scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
+      theme_minimal() + 
+      theme(axis.title = element_text(size = 16, color = "black", face = "bold"), # Dark and bold axis titles
+            axis.text = element_text(size = 12, color = "black"),
+            legend.text = element_text(size = 12,  color = "black"), # Legend text font size
+            legend.title = element_text(size = 16,  color = "black", face = "bold"))    
   }
   
   # graphing the release, budget data (all years, one category)
   graph_all_years <- function(feature){
     graph_data_pre75 |>
       filter(category == "BEST PICTURE") |>
-      ggplot(aes(x = year_film, y = !!sym(feature), color = winner)) +
-      geom_point() + 
-      scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
-      theme_minimal()
+      ggplot(aes(x = year_film, y = !!sym(feature), color = winner, alpha = winner)) +
+      geom_jitter(position = position_jitter(height = 0.1),
+                  size = 3) + 
+      scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
+      scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
+      theme_minimal() + 
+      theme(axis.title = element_text(size = 16, color = "black", face = "bold"), # Dark and bold axis titles
+            axis.text = element_text(size = 12, color = "black"),
+            legend.text = element_text(size = 12,  color = "black"), # Legend text font size
+            legend.title = element_text(size = 16,  color = "black", face = "bold"))    
   }
   
   
