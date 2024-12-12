@@ -49,41 +49,39 @@ graph_genre_all_years()
 ```
 
 ```{r}
-#TODO: DECIDE WHAT TYPE OF PLOT WE WANT!
-# graphing the release date data (one year, all categories) 
-graph_release_one_year_scatter<- function(selected_year) {
+graph_one_year_scatter <- function(feature, selected_year) {
   graph_data_pre75 |>
     filter(year_ceremony == selected_year) |>
-    ggplot(aes(x = release_day_val, y = 0, color = winner)) +
+    ggplot(aes(x = !!sym(feature), y = 0, color = winner)) +
     geom_jitter(position = position_jitter(height = 0.1)) + 
     scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
     theme_minimal()
 }
-graph_release_one_year_scatter(2020)
-
-
-# can't figure out why these box plots are different...
-  # basically when year = 2020, filter(year_ceremony = as.integer(year)) 
-  # creates a dif df than filter(year_ceremony == 2020)... IDK WHY
-graph_release_one_year_box <- function(selected_year){
+graphs_one_year_scatter("budget", 2020)
+```
+```{r}
+graph_one_year_box <- function(feature, selected_year){
   graph_data_pre75 |>
     filter(year_ceremony == as.integer(selected_year)) |>
-    ggplot(aes(x = winner, y = release_day_val, color = winner)) +
+    ggplot(aes(x = winner, y = !!sym(feature), color = winner)) +
     geom_boxplot() + 
     theme_minimal()
 }
-graph_release_one_year_box(2020)
+graph_one_year_box("release_day_val", 2020)
+graph_one_year_box("budget", 2020)
 ```
 
 ```{r}
 # graphing the release date data (all years, one category)
-graph_release_all_years <- function(){
+graph_all_years <- function(feature){
   graph_data_pre75 |>
     filter(category == "BEST PICTURE") |>
-    ggplot(aes(x = year_film, y = release_day_val, color = winner)) +
+    ggplot(aes(x = year_film, y = !!sym(feature), color = winner)) +
     geom_point() + 
     scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
     theme_minimal()
 }
-graph_release_all_years()
+graph_all_years("release_day_val")
+graph_all_years("budget")
 ```
+
