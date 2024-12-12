@@ -143,15 +143,23 @@ movie_data <- map_df(unique(movie_details_df$id), search_movie_extra)
 
 
 ```{r}
-movie_data$year = as.integer(substr(movie_data$release_date, 1, 4))
+movie_data$release_year = as.integer(substr(movie_data$release_date, 1, 4))
+movie_data$release_month = as.integer(substr(movie_data$release_date, 6, 7))
 ```
 
 
 ```{r}
 # fix to join by movie AND year, need to parse year from movie data
 all_data <- left_join(oscar_nominees, movie_data, by = c("film" = "title")) |>
-  filter(abs(year_film - year) <= 1)
+  filter(abs(year_film - release_year) <= 1) |>
+  group_by(film, year_film) |>
+  mutate(won_at_least_one = ifelse(sum(winner == "True") >= 1, TRUE, FALSE))
 ```
+
+```{r}
+saveRDS(all_data, "all_data.rds")
+```
+
 ----- run up to here then switch to rf.qmd for rf data preprocessing ------
 
 
