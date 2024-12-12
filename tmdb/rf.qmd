@@ -1,25 +1,11 @@
+```{r}
+library(tidyverse)
+```
 
 
 ```{r}
 # function for unnesting genre list columns
-widen <- function(df) {
-  movie_details_df$genre_ids <- map(movie_details_df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
 
-  # make sure all values are vectors
-  df$col_ids <- map(df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
-    
-  # now, change all the number values to be genres(char)
-  new_df <- df |>
-    unnest(genre_ids) |> 
-    distinct() |>
-    #mutate(genre_ids = genres_dict[as.character(genre_ids)]) |> 
-    filter(!is.na(genre_ids)) |>
-    mutate(valid_id = 1) |> # create binary value for the pivot_wider to use
-    pivot_wider(names_from = genre_ids, values_from = valid_id, 
-                values_fill = 0, names_prefix = "genre_")
-  
-  return(new_df)
-}
 wider_by_genre <- function(df) {
   # make sure all values are vectors
   df$genre_ids <- map(df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
@@ -33,7 +19,6 @@ wider_by_genre <- function(df) {
     mutate(valid_id = 1) |> # create binary value for the pivot_wider to use
     pivot_wider(names_from = genre_ids, values_from = valid_id, 
                 values_fill = 0) # use names_prefix if want "genre_"
-  
   
   return(new_df)
 }
@@ -63,6 +48,18 @@ top_languages <- c("English", "French", "German", "Spanish", "Italian")
 top_companies <- c(174, 4, 21, 25, 5)
 ```
 
+```{r}
+all_data <- readRDS("all_data.rds")
+```
+
+```{r}
+test <-all_data |>
+  filter(film == "$1,000 a Minute" | film == "...And Justice for All") |>
+  mutate(genre_ids = genres) |>
+  select(-genres) |>
+  wider_by_genre()
+```
+
 
 ```{r}
 # preprocess data for best picture winners since 1975
@@ -90,7 +87,9 @@ saveRDS(rf_data, "rf_data.rds")
 all_data <- readRDS("all_Data.rds")
 #rf_data <- rf_data |>
   #mutate(release_month = as.integer(substr(release_date, 6, 7)))
+rf_data
 ```
+
 
 ```{r}
 library(tidymodels)
