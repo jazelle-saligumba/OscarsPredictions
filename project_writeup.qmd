@@ -33,7 +33,9 @@ execute:
 
 - q7
 
+## References
 
+- cite packages, kaggle dataset (need to cite source of the kaggle data)
 
 
 
