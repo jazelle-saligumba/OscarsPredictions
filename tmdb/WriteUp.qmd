@@ -1,0 +1,41 @@
+---
+title: And the Oscar Award goes to... Who? 
+author: Kellie Au, Jazelle Saligumba, Kartika Santoso
+bibliography: references.bib
+toc: true
+date: 'December 12, 2024'
+---
+
+
+Why should anyone care about this?
+What is the project about?
+Do not assume that your readers have any domain knowledge!
+The burden of explanation as to what you are talking about is on you!
+For example, if your project involves phylogenetic trees, do not assume that your audience has anything other than a basic, lay understanding of genetics.
+Where did your data come from?
+What kind of data was it?
+Is there a link to the data or some other way for the reader to follow up on your work?
+Be sure to cite / reference where your data came from!!
+What are your findings?
+What kind of statistical computations (if any) have you done to support those conclusions?
+Again, while the R code will show how the calculation was performed, it is up to you to interpret, in English sentences, the results of these calculations.
+Do not forget about units, axis labels, etc.
+What are the limitations of your work?
+Be clear so that others do not misinterpret your findings.
+To what population do your results apply?
+Do they generalize?
+Could your work be extended with more data or computational power or time to analyze?
+How could your study be improved?
+Suggesting plausible extensions don’t weaken your work – they strengthen it by connecting it to future work.
+What ethical considerations came about during the project?
+How were you or weren’t you able to address those issues?
+What did you learn beyond what we’ve covered in class?
+Must include intro and final paragraph
+
+
+
+
+### References
+::: {#refs}
+:::
+
