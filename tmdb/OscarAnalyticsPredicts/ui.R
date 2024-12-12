@@ -27,7 +27,7 @@ fluidPage(
                    selectInput(
                      inputId = "timeframe", 
                      label = "Choose Timeframe", 
-                     choices = c("All Years", "One Year")
+                     choices = c("All Years, Best Picture Category", "One Year, All Categories")
                    ),
                    uiOutput("dynamic_slider"),  # Dynamic slider placeholder
                    #actionButton(inputId = "render", label = "Render Plot")  # Render button
