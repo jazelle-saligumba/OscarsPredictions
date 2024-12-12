@@ -9,11 +9,33 @@ execute:
 --- 
 
 
-## Motivation
+## Introduction / Motivation (include a visualization maybe)
+
+- q1, q2
+
+## Data
+
+- q3
+
+## Visualizations
+
+- q4, q5
+
+## Random Forest
+
+- q4, q5
+
+## Ethical Considerations
+
+- q6
+
+## Conclusion
+
+- q7
 
 
 
-## 
+
 
 1. Why should anyone care about this?
 
@@ -78,7 +100,10 @@ overarching questions: who wins the oscars? (oscar formula and international mov
 
 6. What ethical considerations that came about during the project. How were you or weren’t you able to address those issues?
 
-- 
+- questioning the authenticity of the media we consume and the media we consider to be "so good"
+- what does the academy think is a good movie?
+- the academy gets to dictate what the masses watch!
+- what movie gets to be guilded?
 
 7. What did you learn beyond what we’ve covered in class?
 
