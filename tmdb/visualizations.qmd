@@ -4,11 +4,13 @@
 graph_data_pre75 <- all_data |>
   filter(year_ceremony >= 1975) |>
   mutate(genre_ids = genres,
-         #release_month = as.integer(substr(release_date, 6, 7)
          release_day_val = as.double(paste0(substr(release_date,6,7),".", substr(release_date,9,10)))) |>
   select(-spoken_languages, -production_countries, -production_companies, 
-         -belongs_to_collection, -genres) #|>
-  #wider_by_genre() 
+         -belongs_to_collection, -genres)
+```
+
+```{r}
+saveRDS(graph_data_pre75, "graph_data_pre75.rds")
 ```
 
 ```{r}
@@ -24,7 +26,7 @@ graph_genre_one_year <- function(selected_year){
     ggplot(aes(x = genre_ids, fill = winner)) + 
     geom_bar(position = "stack") +
     theme_minimal() + 
-    scale_fill_manual(values = c("False" = "#bdd7fe", "True" = "orange")) + 
+    scale_fill_manual(values = c("False" = "gray", "True" = "#af9150")) + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
 }
 graph_genre_one_year(2020)
@@ -40,7 +42,7 @@ graph_genre_all_years <- function(){
     mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
     ggplot(aes(x = year_film, y = genre_ids, color = winner)) + 
     geom_jitter(position = position_jitter(width = 0.1, height = 0.2)) +
-    scale_color_manual(values = c("True" = "red", "False" = "#D4D4D4")) + 
+    scale_color_manual(values = c("True" = "gold", "False" = "#D4D4D4")) + 
     theme_minimal() 
 }
 graph_genre_all_years()
