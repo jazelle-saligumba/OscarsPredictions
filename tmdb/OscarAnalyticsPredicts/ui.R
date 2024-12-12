@@ -37,19 +37,21 @@ fluidPage(
                    plotOutput(outputId = "dynamic_plot")  # Plot output placeholder
                  )
                )
-      )
+      ),
       
       # Tab for RF predictions
-#      tabPanel("Predicting",
-#               sidebarLayout(
-#                 sidebarPanel(
-#                   textInput(inputId="input", label="Enter a 2024 movie", placeholder = "ex. Wicked"),
-                   #actionButton("predict", "Predict")
-#                 ),
-#                 mainPanel(
-#                   tableOutput("word_freq_table")
- #                )
-#               )
-#      )
+      tabPanel("Predicting",
+        sidebarLayout(
+          sidebarPanel(
+            textInput(inputId="movie", label="Enter a 2024 movie", placeholder = "ex. Wicked"),
+            actionButton("predict", "Predict")
+          ),
+          mainPanel(
+            textOutput("movie"),
+            textOutput("data"),
+            textOutput("pred")
+          )
+        )
+      )
     ),
 )
