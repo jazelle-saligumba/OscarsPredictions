@@ -14,6 +14,7 @@ library(dplyr)
 library(tidyverse)
 library(jsonlite)
 library(tidymodels)
+library(ranger)
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
@@ -172,6 +173,7 @@ function(input, output, session) {
     input$movie
   })
   
+  genres_dict <- readRDS("genres_dict.rds")
   genres_list <- readRDS("genres_list.rds")$name
   top_countries <- c("US", "GB", "FR",  "DE", "IT", "CA")
   top_languages <- c("English", "French", "German", "Spanish", "Italian")
