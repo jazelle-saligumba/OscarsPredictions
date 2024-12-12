@@ -22,45 +22,10 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 /* CSS for citations */
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -101,7 +66,10 @@ div.csl-indent {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#references" id="toc-references" class="nav-link active" data-scroll-target="#references">References</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <ul class="collapse">
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -138,87 +106,18 @@ div.csl-indent {
 </header>
 
 
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>The Academy Awards, colloquially known as the Oscars, are an iconic American cultural institution approaching its century-long anniversary. As a defining force in Hollywood, the arts, and the global audience it captivates, the Oscars have evolved into the foremost arbiter in determining which films are immortalized in history. Over time, the ceremony has come to shape not only the landscape of cinema but also public perception of artistic achievement.</p>
+<p>For as long as the Oscars has existed, the concept of ‘Oscar Bait’ continuously makes its yearly occurrence - the idea that certain movies are intentionally created with the Academy’s specific tastes to win an Oscar as part of its marketing strategy. There are certain factors such as having a late release date which approaches the end of the Oscar submission deadline, being a drama, historical piece, or a biopic, and a star-studded cast and director which aligns with most Oscar winners. <span class="citation" data-cites="Qingru2021">(<a href="#ref-Qingru2021" role="doc-biblioref"><strong>Qingru2021?</strong></a>)</span></p>
+<p>Considering the Oscars has become the primary authority of American film taste, it is important to critically consider the media which we consume, and the people behind the Academy who decide what becomes gilded for the rest of time. As we explore what makes an Oscar Award winner versus a nominee, we question the authenticity of such wins, especially when there is a prominent trend of who wins an Oscar award, and the recorded phenomena of directors gaming the system to increase their odds to win one. In this chicken-and-egg situation of which came first, it is important to recognize that the winners may not purely be based on the film’s quality, but its features which cater to the Academy.</p>
 <p>Why should anyone care about this? What is the project about? Do not assume that your readers have any domain knowledge! The burden of explanation as to what you are talking about is on you! For example, if your project involves phylogenetic trees, do not assume that your audience has anything other than a basic, lay understanding of genetics. Where did your data come from? What kind of data was it? Is there a link to the data or some other way for the reader to follow up on your work? Be sure to cite / reference where your data came from!! What are your findings? What kind of statistical computations (if any) have you done to support those conclusions? Again, while the R code will show how the calculation was performed, it is up to you to interpret, in English sentences, the results of these calculations. Do not forget about units, axis labels, etc. What are the limitations of your work? Be clear so that others do not misinterpret your findings. To what population do your results apply? Do they generalize? Could your work be extended with more data or computational power or time to analyze? How could your study be improved? Suggesting plausible extensions don’t weaken your work – they strengthen it by connecting it to future work. What ethical considerations came about during the project? How were you or weren’t you able to address those issues? What did you learn beyond what we’ve covered in class? Must include intro and final paragraph</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">citation</span>(<span class="st">"tidyverse"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>To cite package 'tidyverse' in publications use:
-
-  Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R,
-  Grolemund G, Hayes A, Henry L, Hester J, Kuhn M, Pedersen TL, Miller
-  E, Bache SM, Müller K, Ooms J, Robinson D, Seidel DP, Spinu V,
-  Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019). "Welcome to
-  the tidyverse." _Journal of Open Source Software_, *4*(43), 1686.
-  doi:10.21105/joss.01686 &lt;https://doi.org/10.21105/joss.01686&gt;.
-
-A BibTeX entry for LaTeX users is
-
-  @Article{,
-    title = {Welcome to the {tidyverse}},
-    author = {Hadley Wickham and Mara Averick and Jennifer Bryan and Winston Chang and Lucy D'Agostino McGowan and Romain François and Garrett Grolemund and Alex Hayes and Lionel Henry and Jim Hester and Max Kuhn and Thomas Lin Pedersen and Evan Miller and Stephan Milton Bache and Kirill Müller and Jeroen Ooms and David Robinson and Dana Paige Seidel and Vitalie Spinu and Kohske Takahashi and Davis Vaughan and Claus Wilke and Kara Woo and Hiroaki Yutani},
-    year = {2019},
-    journal = {Journal of Open Source Software},
-    volume = {4},
-    number = {43},
-    pages = {1686},
-    doi = {10.21105/joss.01686},
-  }</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">citation</span>(<span class="st">"jsonlite"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>To cite jsonlite in publications use:
-
-  Ooms J (2014). "The jsonlite Package: A Practical and Consistent
-  Mapping Between JSON Data and R Objects." _arXiv:1403.2805
-  [stat.CO]_. &lt;https://arxiv.org/abs/1403.2805&gt;.
-
-A BibTeX entry for LaTeX users is
-
-  @Article{,
-    title = {The jsonlite Package: A Practical and Consistent Mapping Between JSON Data and R Objects},
-    author = {Jeroen Ooms},
-    journal = {arXiv:1403.2805 [stat.CO]},
-    year = {2014},
-    url = {https://arxiv.org/abs/1403.2805},
-  }</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">citation</span>(<span class="st">"httr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>To cite package 'httr' in publications use:
-
-  Wickham H (2023). _httr: Tools for Working with URLs and HTTP_. R
-  package version 1.4.7, &lt;https://CRAN.R-project.org/package=httr&gt;.
-
-A BibTeX entry for LaTeX users is
-
-  @Manual{,
-    title = {httr: Tools for Working with URLs and HTTP},
-    author = {Hadley Wickham},
-    year = {2023},
-    note = {R package version 1.4.7},
-    url = {https://CRAN.R-project.org/package=httr},
-  }</code></pre>
-</div>
-</div>
-<p><span class="citation" data-cites="Article">(<a href="#ref-Article" role="doc-biblioref"><strong>Article?</strong></a>)</span>{, title = {Welcome to the {tidyverse}}, author = {Hadley Wickham and Mara Averick and Jennifer Bryan and Winston Chang and Lucy D’Agostino McGowan and Romain François and Garrett Grolemund and Alex Hayes and Lionel Henry and Jim Hester and Max Kuhn and Thomas Lin Pedersen and Evan Miller and Stephan Milton Bache and Kirill Müller and Jeroen Ooms and David Robinson and Dana Paige Seidel and Vitalie Spinu and Kohske Takahashi and Davis Vaughan and Claus Wilke and Kara Woo and Hiroaki Yutani}, year = {2019}, journal = {Journal of Open Source Software}, volume = {4}, number = {43}, pages = {1686}, doi = {10.21105/joss.01686}, }</p>
-<p><span class="citation" data-cites="Article">(<a href="#ref-Article" role="doc-biblioref"><strong>Article?</strong></a>)</span>{, title = {The jsonlite Package: A Practical and Consistent Mapping Between JSON Data and R Objects}, author = {Jeroen Ooms}, journal = {arXiv:1403.2805 [stat.CO]}, year = {2014}, url = {https://arxiv.org/abs/1403.2805}, }</p>
-<p><span class="citation" data-cites="Manual">(<a href="#ref-Manual" role="doc-biblioref"><strong>Manual?</strong></a>)</span>{, title = {httr: Tools for Working with URLs and HTTP}, author = {Hadley Wickham}, year = {2023}, note = {R package version 1.4.7}, url = {https://CRAN.R-project.org/package=httr}, }</p>
 <section id="references" class="level3">
 <h3 class="anchored" data-anchor-id="references">References</h3>
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-franklin_3_2019" class="csl-entry" role="listitem">
-Franklin, Marcy. 2019. <span>“The 3 Tropes of an <span>Oscar</span>-Bait Trailer.”</span> <em>Vox</em>. <a href="https://www.vox.com/ad/20974225/oscar-nominees-movie-trailers-tropes-formula">https://www.vox.com/ad/20974225/oscar-nominees-movie-trailers-tropes-formula</a>.
+<div id="refs" role="list">
+
 </div>
-<div id="ref-hofler_first_2010" class="csl-entry" role="listitem">
-Hofler, Robert. 2010. <span>“The First <span>Oscar</span> Consultant.”</span> <em>Variety</em>. <a href="https://variety.com/2010/film/news/the-first-oscar-consultant-1118015532/">https://variety.com/2010/film/news/the-first-oscar-consultant-1118015532/</a>.
-</div>
-<div id="ref-noauthor_hooked_2021" class="csl-entry" role="listitem">
-<span>“Hooked on <span>Oscar</span> <span>Bait</span> – <span>Is</span> <span>There</span> a <span>Hack</span> to <span>Winning</span> an <span>Oscar</span>?”</span> 2021. <em>Sinema.SG</em>. <a href="https://www.sinema.sg/2021/04/21/hooked-on-oscar-bait/">https://www.sinema.sg/2021/04/21/hooked-on-oscar-bait/</a>.
-</div>
-<div id="ref-zauzmer_inside_2022" class="csl-entry" role="listitem">
-Zauzmer, Rebecca Keegan, Ben. 2022. <span>“Inside the <span>Academy</span>’s <span>Inclusion</span> <span>Drive</span>.”</span> <em>The Hollywood Reporter</em>. <a href="https://www.hollywoodreporter.com/movies/movie-features/the-academy-inclusion-data-1235116216/">https://www.hollywoodreporter.com/movies/movie-features/the-academy-inclusion-data-1235116216/</a>.
-</div>
-</div>
+</section>
 </section>
 
 </main>
