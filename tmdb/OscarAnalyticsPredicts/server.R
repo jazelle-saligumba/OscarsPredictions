@@ -262,7 +262,11 @@ function(input, output, session) {
     cbind(data)
   
   output$pred <- renderText({
-    as.logical(pred$.pred_class)
+    if (as.logical(pred$.pred_class) == "FALSE"){
+      "And the Oscar Award goes to, NOT you...womp womp :("
+    } else if (as.logical(pred$.pred_class) == "TRUE"){
+      "Congrats! Your one step closer to an EGOT :o"
+    }
   })
   
 })
