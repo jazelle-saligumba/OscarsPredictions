@@ -13,6 +13,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyverse)
 library(jsonlite)
+library(tidymodels)
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
@@ -155,7 +156,7 @@ function(input, output, session) {
   
   search_movie <- readRDS("search_movie.rds")
   search_movie_extra <- readRDS("search_movie_extra.rds")
-  movie_rf_final <- readRDS("movie_rf_final.rds")
+  movie_rf <- readRDS("movie_rf_final.rds")
   
   input_fields <- c("adult", "backdrop_path", "belongs_to_collection", "budget", 
                     "genres", "homepage", "id", "imdb_id", "original_language", 
@@ -250,7 +251,7 @@ function(input, output, session) {
     }
   }
 
-  pred <- movie_rf_final |>
+  pred <- movie_rf |>
     predict(new_data = data) |>
     cbind(data)
   
