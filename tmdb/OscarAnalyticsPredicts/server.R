@@ -265,7 +265,7 @@ function(input, output, session) {
     if (as.logical(pred$.pred_class) == "FALSE"){
       "And the Oscar Award goes to, NOT you...womp womp :("
     } else if (as.logical(pred$.pred_class) == "TRUE"){
-      "Congrats! Your one step closer to an EGOT :o"
+      "Congrats! You're one step closer to an EGOT :o"
     }
   })
   
