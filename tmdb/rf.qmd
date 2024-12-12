@@ -48,6 +48,7 @@ flatten_lists <- function(df, feature, prefix) {
     unnest({{feature}}) |>  # unnest the specified column
     distinct() |> 
     mutate(valid_value = 1) |>  # create binary value for pivot_wider
+    
     pivot_wider(names_from = {{feature}}, values_from = valid_value, 
                 names_prefix = prefix, values_fill = 0)
   
@@ -60,7 +61,6 @@ flatten_lists <- function(df, feature, prefix) {
 # preprocess data for best picture winners since 1975
 # need to widen genres, production_companies, production_countries, spoken_languages
 # predict on year_ceremony, budget, genres, original_language, popularity, production_companies, production_countries, revenue, runtime, spoken_langauges, vote_average, vote_count, release_month
-
 rf_data <- all_data |>
   # first make df wider (flatten all data)
   mutate(genre_ids = genres) |>
@@ -72,9 +72,12 @@ rf_data <- all_data |>
   select(-belongs_to_collection, -production_companies) |> # don't need these list columns
   # now filter to be since 1975
   filter(year_ceremony >= 1975, category == "BEST PICTURE") 
+```
 
-rf_data |>
-  mutate(release_month = as.integer(substr(release_date, 6, 7)))
+```{r}
+all_data <- read.csv("all_data.csv")
+#rf_data <- rf_data |>
+  #mutate(release_month = as.integer(substr(release_date, 6, 7)))
 ```
 
 ```{r}
@@ -88,16 +91,21 @@ movie_test <- testing(movie_split)
 
 # recipe
 recipe <-
-  recipe(winner ~ . , #####
+  recipe(winner ~ . ,
+  #recipe(winner ~ budget + Drama + release_month,
+  #recipe(winner ~ vote_average + vote_count + popularity + revenue + runtime + budget,
          data = movie_train) |>
-  step_rm(year_film, ceremony, category, name, film, adult, backdrop_path, homepage, id,
-          imdb_id, original_title, overview, poster_path, production_companies, 
-          release_date, status, tagline, video, year)
-recipe
+  step_rm(year_film, year_ceremony, ceremony, category, name, film, adult, backdrop_path, 
+          homepage, id, imdb_id, original_title, overview, poster_path, production_companies, 
+          release_date, status, tagline, video)
+#recipe <-
+  #recipe(winner ~ budget + Drama + release_month,
+         #data = movie_train) 
 
 #model
 movie_rf <- rand_forest(mtry = tune(),
-                        trees = tune()) |>
+                        trees = tune(), 
+                        min_n = tune()) |>
   set_engine("ranger", importance = "permutation") |>
   set_mode("classification")
 
@@ -110,9 +118,10 @@ movie_rf_wflow <- workflow() |>
 movie_folds <- vfold_cv(movie_train, v = 4)
 
 # parameters
-movie_grid <- grid_regular(mtry(range = c(2,234)), #####
-                           trees(range = c(1,500)), #####
-                           levels = 5) #####
+movie_grid <- grid_regular(mtry(range = c(1,235)), #####
+                           trees(range = c(10,500)),
+                           min_n(range = c(1,20)),#####
+                           levels = 10) #####
 
 # tune
 movie_rf_tune <- 
@@ -186,7 +195,8 @@ movie_rf_final |>
 
 
 
-
+- save object (save rds)
+- 
 
 
 
