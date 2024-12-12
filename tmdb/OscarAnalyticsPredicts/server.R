@@ -123,9 +123,8 @@ function(input, output, session) {
   # Set up TMDB auth
   url <- "https://api.themoviedb.org/3/authentication"
   
-  #personal_authorization <- paste0('Bearer ', config::get("tmdb_api_key"))
-  personal_authorization <- paste0('Bearer ', "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5NDc5YzdkZWVlNjc5ZjUzNmNmYWNkMjhjM2MzODg5MiIsIm5iZiI6MTczMzYyMjQ4Ny45ODQsInN1YiI6IjY3NTRmYWQ3MDU2NGIxZWE5YjZlYmI2MCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.DUZe0sVKKazFaneN6k6MMsb9dmL3htDqZaZd6mSCFUs")
-  
+  personal_authorization <- paste0('Bearer ', config::get("tmdb_api_key"))
+
   response <- VERB("GET", url, add_headers('Authorization' =  personal_authorization), 
   content_type("application/octet-stream"), accept("application/json"))
   
