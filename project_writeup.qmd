@@ -15,7 +15,166 @@ execute:
 
 ## Data
 
-- q3
+We began by using this [dataset of Oscar nominees and winners from 1927-2024](https://www.kaggle.com/datasets/unanimad/the-oscar-award). This dataset had info on each film, its release year, the category it was nominated for, and whether or not it won.
+
+```{r}
+library(tidyverse)
+oscar_nominees <- read.csv("./tmdb/the_oscar_award.csv")
+```
+
+
+For each film in this dataset, we used the [TMDB API](https://developer.themoviedb.org/reference/intro/getting-started) to info on its budget, popularity, revenue, runtime, release date, vote average, vote count, genres, production countries, and spoken languages. 
+
+To set up authorization with the TMDB API, make an account and set the API key as an environment variable by creating a `.Renviron` file and listing the API key as below: 
+
+```{r} eval=False
+TMDB_API_KEY=YOURAPIKEY # No spaces or quotation marks!
+```
+
+Then, run `readRenviron(".Renviron")` in the console. 
+
+```{r}
+library(httr)
+library(jsonlite)
+
+url <- "https://api.themoviedb.org/3/authentication"
+
+personal_authorization <- paste0('Bearer ', Sys.getenv("TMDB_API_KEY"))
+
+response <- VERB("GET", url, add_headers('Authorization' =  personal_authorization), 
+                 content_type("application/octet-stream"), accept("application/json"))
+```
+
+In order to get the movie data, we first had to make an API call to search for the movie in the TMDB databse and get its TMDB id. We search using the film name and year from the Oscar nominees dataset, then take the result with the highest popularity. We assume here movies that get nominated are much more popular than non-nominated movies.
+
+```{r}
+# function to search for a movie by title and year
+search_movie <- function(auth, movie_title, year) {
+  url <- "https://api.themoviedb.org/3/search/movie"
+  
+  # parameters for the query
+  queryString <- list(
+    query = movie_title,
+    year = as.character(year)
+  )
+  
+  response <- VERB("GET", url, query = queryString, 
+                   add_headers('Authorization' = auth), 
+                   content_type("application/octet-stream"), 
+                   accept("application/json"))
+  
+  # check for response status
+  if (http_error(response)) {
+    stop("Failed to retrieve movie data. HTTP Status: ", status_code(response))
+  }
+  
+  # parse json
+  response_content <- content(response, "text")
+  json_data <- fromJSON(response_content)
+  
+  # return the top movie hit
+  if (length(json_data$results) > 0) {
+    return(
+      as.data.frame(json_data$results |>
+        arrange(desc(popularity)) |> # choose based on popularity
+        head(1)
+    ))
+  } else { # modify to search +/- 1
+    return(NULL) # No results found
+  }
+}
+```
+
+```{r}
+# Example: Search for Parasite
+parasite <- search_movie(personal_authorization, "Parasite", 2020)
+print(parasite)
+```
+
+```{r echo = FALSE, eval = FALSE} 
+# Get ids for every observation in the Oscar nominations dataset
+movie_details <- apply(oscar_nominees, 1, function(row) {
+  search_movie(personal_authorization, row["film"], row["year_film"])
+})
+
+#combine all calls into one df
+movie_details_df <- do.call(rbind, movie_details)
+
+movie_details_df
+```
+
+Now that we have the movie's TMDB id, we can make another API call to get its full details. 
+
+```{r} 
+search_movie_extra <- function(auth, movie_id, fields) {
+  parse_field <- function(json_data, field) {
+    return(ifelse(!is.null(json_data[[field]]), json_data[[field]], NA))
+  }
+  
+  url <- paste0("https://api.themoviedb.org/3/movie/", movie_id)
+  
+  # Make the GET request with the Authorization header and JSON accept header
+  response <- GET(url, 
+                  add_headers('Authorization' = auth),
+                  content_type("application/octet-stream"), 
+                  accept("application/json"))
+  
+  # Check for response status
+  if (http_error(response)) {
+    stop("Failed to retrieve movie data. HTTP Status: ", status_code(response))
+  }
+  
+  # Parse the JSON response
+  response_content <- content(response, "text")
+  json_data <- fromJSON(response_content)
+  
+  result <- data.frame(matrix(ncol = length(fields), nrow = 1))
+  colnames(result) <- fields
+  
+  # Safely extract all the available fields
+  if (length(json_data) > 0) {
+    for (field in fields) {
+      result[[field]] = parse_field(json_data, field)
+    }
+    
+    return(result) 
+  } else {
+    return(data.frame())
+  }
+}
+```
+
+```{r}
+# Define fields to search for
+input_fields <- c("adult", "backdrop_path", "belongs_to_collection", "budget", "genres", "homepage", "id", "imdb_id", "original_language", "original_title", "overview", "popularity", "poster_path", "production_companies", "production_countries", "release_date", "revenue", "runtime", "spoken_languages", "status", "tagline", "title", "video", "vote_average", "vote_count")
+```
+
+```{r}
+# Example: Get details for Fightclub
+fightclub <- search_movie_extra(personal_authorization, 550, input_fields)
+print(fightclub)
+```
+
+```{r echo = FALSE, eval = FALSE} 
+# Get details for every movie in the Oscars nominees dataset
+movie_data <- map_df(unique(movie_details_df$id), 
+                     partial(search_movie_extra, 
+                             auth = personal_authorization, 
+                             fields = input_fields))
+
+# Parse the release year and month
+movie_data$release_year = as.integer(substr(movie_data$release_date, 1, 4))
+movie_data$release_month = as.integer(substr(movie_data$release_date, 6, 7))
+```
+
+Once we have all of the details for each of the movies, we can merge this data with our original Oscar nominees data. 
+```{r echo = FALSE, eval = FALSE}
+all_data <- left_join(oscar_nominees, movie_data, by = c("film" = "title")) |>
+  filter(abs(year_film - release_year) <= 1) |>
+  group_by(film, year_film) |>
+  mutate(won_at_least_one = ifelse(sum(winner == "True") >= 1, TRUE, FALSE)) |>
+  ungroup()
+```
 
 ## Visualizations
 
@@ -24,6 +183,181 @@ execute:
 ## Random Forest
 
 - q4, q5
+
+As we saw in the above visualizations, there are definitely trends in what kind of movies get nominated for Oscars. The next question we wanted to answer was whether we could train a random forest model to be able to predict which of those nominees actually wins the Oscar. 
+
+To use our data, we first had to do some preprocessing. In particular, we wanted to predict on the information in the `genres`, `production_countries`, and `spoken_languages` columns, but these columns were in a list format, so we widened our dataset by turning those columns into multiple binary columns. We created a new binary column for each genre, and for the top 5 production countries and top 5 spoken languages. We also included an `other` column for movies that had a non-top 5 production country or spoken language.
+
+```{r}
+# function for unnesting genre list columns
+wider_by_genre <- function(df) {
+  # make sure all values are vectors
+  df$genre_ids <- map(df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
+    
+  # now, change all the number values to be genres(char)
+  new_df <- df |>
+    unnest(genre_ids) |> 
+    distinct() |>
+    mutate(genre_ids = genres_dict[as.character(genre_ids)]) |> 
+    filter(!is.na(genre_ids)) |>
+    mutate(valid_id = 1) |> # create binary value for the pivot_wider to use
+    pivot_wider(names_from = genre_ids, values_from = valid_id, 
+                values_fill = 0) # use names_prefix if want "genre_"
+  
+  return(new_df)
+}
+
+# more generic flattening of lists
+flatten_lists <- function(df, feature, top_vector, prefix) {
+  # make sure all values in the specified column are vectors
+  df[[feature]] <- map(df[[feature]], ~ if (is.list(.)) unlist(.) else .)
+  df$feature[is.null(df$feature)] <- NA
+
+  # now, change all the number values 
+  new_df <- df |> 
+    unnest({{feature}}) |>  # unnest the specified column
+    mutate(valid_value = 1, # create binary value for pivot_wider
+           temp_feature = case_when(
+             .data[[feature]] %in% top_vector ~ as.character(.data[[feature]]), 
+             TRUE ~ "Other")) |>  
+    select(-{{feature}}, -feature) |>
+    distinct() |>
+    pivot_wider(names_from = temp_feature, values_from = valid_value, 
+                names_prefix = prefix, values_fill = 0)
+  
+  return(new_df)
+}
+top_countries <- c("US", "GB", "FR",  "DE", "IT", "CA")
+top_languages <- c("English", "French", "German", "Spanish", "Italian")
+top_companies <- c(174, 4, 21, 25, 5)
+```
+
+```{r eval = FALSE}
+# preprocess data for nominees since 1975
+rf_data <- all_data |>
+  # first make df wider (flatten all data)
+  mutate(genre_ids = genres) |>
+  select(-genres) |>
+  wider_by_genre() |>
+  flatten_lists("production_countries", top_countries, "country_") |>
+  flatten_lists("spoken_languages", top_languages, "lang_") |>
+  #flatten_lists("production_companies", top_companies "company_") |>
+  select(-belongs_to_collection, -production_companies) |> # don't need these list columns
+  # now filter to be since 1975
+  filter(year_ceremony >= 1975) 
+```
+
+```{r}
+rf_data <- rf_data |>
+  mutate(won_at_least_one = as.factor(won_at_least_one))
+```
+
+```{r}
+rf_data <- rf_data |>
+  ungroup() |>
+  distinct(film, .keep_all = TRUE) |>
+  select(-year_film, -year_ceremony, -ceremony, -category, -name, -film, -winner, -adult, 
+         -backdrop_path, -homepage, -id, -imdb_id, -original_title, -overview, -poster_path, 
+         -release_date, -status, -tagline, -video, -original_language)
+```
+
+```{r}
+library(tidymodels)
+
+# partition
+set.seed(47)
+movie_split <- initial_split(rf_data)
+movie_train <- training(movie_split)
+movie_test <- testing(movie_split)
+
+# recipe
+recipe <-
+  recipe(won_at_least_one ~ . ,
+         data = movie_train) #|>
+  #step_rm(year_film, year_ceremony, ceremony, category, name, film, winner, adult, backdrop_path, 
+          #homepage, id, imdb_id, original_title, overview, poster_path, 
+          #release_date, status, tagline, video, original_language) #####
+
+#model
+movie_rf <- rand_forest(mtry = tune(),
+                        trees = tune(),
+                        min_n = tune()) |>
+  set_engine("ranger", importance = "permutation") |>
+  set_mode("classification")
+
+# workflow
+movie_rf_wflow <- workflow() |>
+  add_model(movie_rf) |>
+  add_recipe(recipe)
+
+# CV
+movie_folds <- vfold_cv(movie_train, v = 4)
+
+# parameters
+movie_grid <- grid_regular(mtry(range = c(1,40)),
+                           trees(range = c(10,500)),
+                           min_n(range = c(1,20)),
+                           levels = 5) 
+
+# tune
+movie_rf_tune <- 
+  movie_rf_wflow |>
+  tune_grid(resamples = movie_folds,
+            grid = movie_grid)
+
+select_best(movie_rf_tune, metric = "accuracy")
+```
+
+```{r}
+movie_rf_best <- finalize_model(
+  movie_rf,
+  select_best(movie_rf_tune, metric = "accuracy"))
+
+movie_rf_best
+```
+
+```{r}
+movie_rf_final <-
+  workflow() |>
+  add_model(movie_rf_best) |>
+  add_recipe(recipe) |>
+  fit(data = movie_train)
+
+movie_rf_final
+```
+
+```{r}
+# Training error
+preds <- movie_rf_final |>
+  predict(new_data = movie_train) |>
+  cbind(movie_train) #|>
+  #mutate(winner = factor(winner))
+
+preds |>
+  metrics(truth = won_at_least_one, estimate = .pred_class) |>
+  filter(.metric == "accuracy")
+preds
+
+conf_matrix <- conf_mat(preds, truth = won_at_least_one, estimate = .pred_class)
+conf_matrix
+```
+
+
+```{r}
+# Test on testing data
+preds <- movie_rf_final |>
+  predict(new_data = movie_test) |>
+  cbind(movie_test) #|>
+  #mutate(winner = factor(winner))
+
+preds |>
+  metrics(truth = won_at_least_one, estimate = .pred_class) |>
+  filter(.metric == "accuracy")
+preds
+
+conf_matrix <- conf_mat(preds, truth = won_at_least_one, estimate = .pred_class)
+conf_matrix
+```
 
 ## Ethical Considerations
 
@@ -98,18 +432,25 @@ overarching questions: who wins the oscars? (oscar formula and international mov
 
 5. To what population do your results apply? Do they generalize? Could your work be extended with more data or computational power or time to analyze? How could your study be improved? Suggesting plausible extensions don’t weaken your work – they strengthen it by connecting it to future work.
 
-- 
+- Population = All Movies ??
+- With more data, we'd be able to understand more aspects of movies and come up with better model
+  - ability to investigate more aspects of the movie (e.g. data on the actors/directors/producers involved in the film)
+  - gathering data on movies that were NOT nominated would also be really helpful
+- Our study can be improved:
+  - 
 
 6. What ethical considerations that came about during the project. How were you or weren’t you able to address those issues?
 
 - questioning the authenticity of the media we consume and the media we consider to be "so good"
 - what does the academy think is a good movie?
-- the academy gets to dictate what the masses watch!
+  -  the academy gets to dictate what the masses watch!
 - what movie gets to be guilded?
 
 7. What did you learn beyond what we’ve covered in class?
 
 - how to work with live data from API, API calls
+- how to create a fully publishable shiny app that works dynamically with data and API
+-  
 
 
 
