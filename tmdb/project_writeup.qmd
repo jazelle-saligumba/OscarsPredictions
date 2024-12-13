@@ -32,13 +32,15 @@ oscar_nominees <- read.csv("the_oscar_award.csv")
 
 For each film in this dataset, we used the [TMDB API](https://developer.themoviedb.org/reference/intro/getting-started) to info on its budget, popularity, revenue, runtime, release date, vote average, vote count, genres, production countries, and spoken languages. 
 
-To set up authorization with the TMDB API, make an account and set the API key as an environment variable by creating a `.Renviron` file and listing the API key as below: 
+To set up authorization with the TMDB API, make an account and set the API key as an environment variable by creating a `.Renviron` file and listing the API key as below (**in the `.Renviron` file): 
 
-```{r eval=False}
+```{r eval=FALSE}
 TMDB_API_KEY=YOURAPIKEY # No spaces or quotation marks!
 ```
 
-Then, run `readRenviron(".Renviron")` in the console. 
+Note that the `.Renviron` file should be at the same level of the `.Rproj` of the project in order for this to work.
+
+Now, run `readRenviron(".Renviron")` in the console. 
 
 ```{r}
 library(httr)
