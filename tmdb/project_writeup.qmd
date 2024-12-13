@@ -16,7 +16,7 @@ execute:
 
 The Academy Awards, colloquially known as the Oscars, are an iconic American cultural institution approaching its century-long anniversary. As a defining force in Hollywood, the arts, and the global audience it captivates, the Oscars have evolved into the foremost arbiter in determining which films are immortalized in history. Over time, the ceremony has come to shape not only the landscape of cinema but also public perception of artistic achievement. 
 
-For as long as the Oscars has existed, the concept of 'Oscar Bait' continuously makes its yearly occurrence - the idea that certain movies are intentionally created with the Academy's specific tastes to win an Oscar as part of its marketing strategy. There are certain factors such as having a late release date which approaches the end of the Oscar submission deadline, being a drama, historical piece, or a biopic, and a star-studded cast and director which aligns with most Oscar winners. [@Qingru2021]
+For as long as the Oscars has existed, the concept of 'Oscar Bait' continuously makes its yearly occurrence - the idea that certain movies are intentionally created with the Academy's specific tastes to win an Oscar as part of its marketing strategy. There are certain factors such as having a late release date which approaches the end of the Oscar submission deadline, being a drama, historical piece, or a biopic, and a star-studded cast and director which aligns with most Oscar winners. [@Qingru_hooked_2021; @hofler_first_2010; @franklin_3_2019]
 
 Considering the Oscars has become the primary authority of American film taste, it is important to critically consider the media which we consume, and the people behind the Academy who decide what becomes gilded for the rest of time. As we explore what makes an Oscar Award winner versus a nominee, we question the authenticity of such wins, especially when there is a prominent trend of who wins an Oscar award, and the recorded phenomena of directors gaming the system to increase their odds to win one. In this chicken-and-egg situation of which came first, it is important to recognize that the winners may not purely be based on the film's quality, but its features which cater to the Academy. 
 
@@ -446,7 +446,4 @@ overarching questions: who wins the oscars? (oscar formula and international mov
 - how to work with live data from API, API calls
 - how to create a fully publishable shiny app that works dynamically with data and API
 -  
-
-
-
 
