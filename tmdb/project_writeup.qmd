@@ -30,10 +30,10 @@ Motivated by the idea of Oscar Bait, our project aims to explore the factors tha
 We began by using this [dataset of Oscar nominees and winners from 1927-2024](https://www.kaggle.com/datasets/unanimad/the-oscar-award). This dataset had info on each film, its release year, the category it was nominated for, and whether or not it won.
 
 ```{r}
-library(tidyverse)
+library(tidyverse) 
 oscar_nominees <- read.csv("the_oscar_award.csv")
 ```
-
+[@Tidyverse]
 
 For each film in this dataset, we used the [TMDB API](https://developer.themoviedb.org/reference/intro/getting-started) to info on its budget, popularity, revenue, runtime, release date, vote average, vote count, genres, production countries, and spoken languages. 
 
@@ -50,6 +50,7 @@ Now, run `readRenviron(".Renviron")` in the console.
 ```{r}
 library(httr)
 library(jsonlite)
+library(dplyr)
 
 url <- "https://api.themoviedb.org/3/authentication"
 
@@ -58,6 +59,7 @@ personal_authorization <- paste0('Bearer ', Sys.getenv("TMDB_API_KEY"))
 response <- VERB("GET", url, add_headers('Authorization' =  personal_authorization), 
                  content_type("application/octet-stream"), accept("application/json"))
 ```
+[@httr;@jsonlite;@dplyr]
 
 In order to get the movie data, we first had to make an API call to search for the movie in the TMDB database and get its TMDB id. We search using the film name and year from the Oscar nominees dataset, then take the result with the highest popularity. We assume here movies that get nominated are much more popular than non-nominated movies.
 
@@ -100,7 +102,7 @@ search_movie <- function(auth, movie_title, year) {
 }
 ```
 
-We now try this on an example movie: Parasite to exhibit the information that is returned:
+We now try this on an example movie, Parasite, to exhibit the information that is returned:
 ```{r}
 # Example: Search for Parasite
 parasite <- search_movie(personal_authorization, "Parasite", 2020)
@@ -164,7 +166,12 @@ search_movie_extra <- function(auth, movie_id, fields) {
 More specifically, we wanted to retrieve the following columns/data to utilize later.
 ```{r}
 # Define fields to search for
-input_fields <- c("adult", "backdrop_path", "belongs_to_collection", "budget", "genres", "homepage", "id", "imdb_id", "original_language", "original_title", "overview", "popularity", "poster_path", "production_companies", "production_countries", "release_date", "revenue", "runtime", "spoken_languages", "status", "tagline", "title", "video", "vote_average", "vote_count")
+input_fields <- c("adult", "backdrop_path", "belongs_to_collection", "budget", 
+                  "genres", "homepage", "id", "imdb_id", "original_language", 
+                  "original_title", "overview", "popularity", "poster_path", 
+                  "production_companies", "production_countries", "release_date", 
+                  "revenue", "runtime", "spoken_languages", "status", "tagline", 
+                  "title", "video", "vote_average", "vote_count")
 ```
 
 Hence, we have all of the qualities of the function necessary to retrieve this data! For example we can run this function to get extra details on Fightclub:
@@ -188,7 +195,7 @@ movie_data$release_month = as.integer(substr(movie_data$release_date, 6, 7))
 ```
 So now we have all of the details needed to analyze the Oscar and movie data!
 
-### Data Wrangling
+## Data Wrangling
 
 Now, we have all of the data necessary for us to pursue our project goal. That said, the data doesn't exactly come in a simple form for us to easily use in data visualization and in building a model. So, we have to transform it a bit. 
 
@@ -270,7 +277,7 @@ flatten_lists <- function(df, feature, top_vector, prefix) {
 
 - q4, q5
 
-Now that we have wrangled the data to be in a form that we can easily work with. We look to do some data analyzation. Motivated by this idea of oscar baiting, we initially wanted to look at the characteristics that were specifically listed as elements of oscar baiting. More specifically, the traits that we had data on included Genre, Budget, and Release Date. 
+Now that we have wrangled the data to be in a form that we can easily work with. We look to do some data analyzation. Motivated by this idea of oscar baiting, we initially wanted to look at the characteristics that were specifically listed as elements of oscar baiting. [@franklin_3_2019] More specifically, the traits that we had data on included Genre, Budget, and Release Date. 
 
 Since the first notion of "oscar baiting" was in 1978 ("The Deet Hunter"), we decided to use data from the last 50 years of the Oscars to analyze the trends of a possible oscar baiting phenomena. 
 
@@ -279,6 +286,7 @@ all_data <- readRDS("all_data.rds")
 ```
 
 ```{r echo=FALSE}
+library(ggplot2)
 # pre-processing data frame to use for graphs
 graph_data_pre75 <- all_data |>
   filter(year_ceremony >= 1975) |>
@@ -287,6 +295,7 @@ graph_data_pre75 <- all_data |>
   select(-spoken_languages, -production_countries, -production_companies, 
          -belongs_to_collection, -genres)
 ```
+[@ggplot2]
 
 Specifically, we firstlooked at the year 2024 and the movies that were nominated for the 2024 Oscars (ie. they were 2023 films). It is notable how dominant the Drama category is among all of these movies, both in overall nominations and in winners. Additionally, following behind are historical films. Note that these results are consistent with a category of oscar baiting being a dramatic, historical period piece. 
 ```{r echo=FALSE}
@@ -343,7 +352,7 @@ graph_all_years("budget", "Year", "Budget")
 ```
 **It is important to note that these visualizations are not entirely accurate as they may have some corrupted values due to IMDB being a user informed site. For example, there is a movie called "Taxi Driver" that is listed as having a budget of about 600 million dollars (observation seen in the top left corner of the graph above) whereas its real budget is somewhere closer to about 2 million dollars.
 
-From all of these visualizations, we were able to understand and convince ourselves that oscar baiting is honestly a very real phenomena. That is, many Oscar nominated (and awarded) films have oddly similar traits in regards to their genre, budget, and release day of the year.
+From all of these visualizations, we were able to understand and convince ourselves that oscar baiting is a very real phenomena. That is, many Oscar nominated (and awarded) films have oddly similar traits in regards to their genre, budget, and release day of the year.
 
 ## Random Forest
 
@@ -410,7 +419,9 @@ rf_data <- rf_data |>
   ungroup() |>
   distinct(film, .keep_all = TRUE) |>
   select(-year_film, -year_ceremony, -ceremony, -category, -name, -film, -winner, 
-         -adult, -backdrop_path, -homepage, -id, -imdb_id, -original_title, -overview, -poster_path, -release_date, -status, -tagline, -video, -original_language)
+         -adult, -backdrop_path, -homepage, -id, -imdb_id, -original_title, 
+         -overview, -poster_path, -release_date, -status, -tagline, -video,
+         -original_language)
 ```
 
 Now that our data has been preprocessed, we are ready to train a model. Keep in mind that our model will be predicting the variable `won_at_least_one`. Again, since we adjusted the dataset earlier to account for any model that won at least one Oscar award, the model will be predicting whether or not it will win *any* award. We also perform cross-validation on the `mtry`, `trees`, and `min_n` parameters. 
@@ -458,6 +469,7 @@ movie_rf_tune <-
 
 select_best(movie_rf_tune, metric = "accuracy")
 ```
+[@Tidymodels;@ranger]
 
 After performing CV, we can select the best model and finalize it.
 
@@ -493,7 +505,7 @@ conf_matrix
 
 We observe that our model has a 72% accuracy rate on our test data. From our confusion matrix, we see that the true positive rate is 74% and the true negative rate is 94%. Note that there are much fewer movies that win Oscars than are nominated, so as seen in the confusion matrix, there are much more "False" observations in our data than "True" observations, causing the skew towards "False". 
 
-Additionally, we note that our model is limited by the fact that it was trained on data/observations of which were *all nominated* for an Oscar. That is to say that our model is quite uninformed on all of the qualities of movies that are not nominated, and hence cannot distinguish exactly what makes a winner a *true* winner. Further, in our Shiny app, when you "predict" if a movie is going to win an Oscar, it is likely going to be False a significant more amount since it is likely being fed movies that have not yet been recognized as an Oscar nominee. 
+Additionally, we note that our model is limited by the fact that it was trained on data/observations of which were *all nominated* for an Oscar. That is to say that our model is quite uninformed on all of the qualities of movies that are not nominated, and hence cannot distinguish exactly what makes a winner a *true* winner. Further, in our Shiny app, when you "predict" if a movie is going to win an Oscar, it is likely going to be False a significant more amount since it is likely being fed movies that have not yet been recognized as an Oscar nominee. [@Shiny]
 
 ## Ethical Considerations
 
