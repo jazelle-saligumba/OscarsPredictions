@@ -12,7 +12,7 @@ execute:
 --- 
 
 
-## Introduction / Motivation (include a visualization maybe)
+## Introduction / Motivation
 
 The Academy Awards, colloquially known as the Oscars, are an iconic American cultural institution approaching its century-long anniversary. As a defining force in Hollywood, the arts, and the global audience it captivates, the Oscars have evolved into the foremost arbiter in determining which films are immortalized in history. Over time, the ceremony has come to shape not only the landscape of cinema but also public perception of artistic achievement. 
 
