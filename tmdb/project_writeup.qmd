@@ -35,7 +35,7 @@ oscar_nominees <- read.csv("the_oscar_award.csv")
 ```
 [@Tidyverse]
 
-For each film in this dataset, we used the [TMDB API](https://developer.themoviedb.org/reference/intro/getting-started) to info on its budget, popularity, revenue, runtime, release date, vote average, vote count, genres, production countries, and spoken languages. 
+For each film in this dataset, we used the [TMDB API](https://developer.themoviedb.org/reference/intro/getting-started) to info on its budget, popularity, revenue, runtime, release date, vote average, vote count, genres, production countries, and spoken languages. [@TMDb]
 
 To set up authorization with the TMDB API, make an account and set the API key as an environment variable by creating a `.Renviron` file and listing the API key as below (**in the `.Renviron` file): 
 
@@ -501,11 +501,11 @@ conf_matrix
 
 We observe that our model has a 72% accuracy rate on our test data. From our confusion matrix, we see that the true positive rate is 74% and the true negative rate is 94%. Note that there are much fewer movies that win Oscars than are nominated, so as seen in the confusion matrix, there are much more "False" observations in our data than "True" observations, causing the skew towards "False". 
 
-Additionally, we note that our model is limited by the fact that it was trained on data/observations of which were *all nominated* for an Oscar. That is to say that our model is quite uninformed on all of the qualities of movies that are not nominated, and hence cannot distinguish exactly what makes a winner a *true* winner. Further, in our Shiny app, when you "predict" if a movie is going to win an Oscar, it is likely going to be False a significant more amount since it is likely being fed movies that have not yet been recognized as an Oscar nominee. [@Shiny]
+Additionally, we note that our model is limited by the fact that it was trained on data/observations of which were *all nominated* for an Oscar. That is to say that our model is quite uninformed on all of the qualities of movies that are not nominated, and hence cannot distinguish exactly what makes a winner a *true* winner. Further, in our Shiny app, when you "predict" if a movie is going to win an Oscar, it is likely going to be False a significant more amount since it is likely being fed movies that have not yet been recognized as an Oscar nominee. [@shiny]
 
 ## Ethical Considerations
 
-- q6
+Though we are very proud of the model and analytics we created, that doesn't come without other considerations. In fact, the biggest implication of our model may be the very thing that we are critiquing. That is, creating a model that may predict an Oscar winner and hence that identifies probable qualities of an Oscar nominee/winner, may simply produce more film makers to latch on to the "Oscar bait" phenomena that has become so popular. Identifying the problem as we have done in this project could lead to more and more talk and consideration of the various qualities that produces an Oscar winning film; thus leading to a continuously more formulaic method of winning an Oscar. All in all, marking creativity in a quantitative manner, may in fact inhibit the quality of the media we consume.  
 
 ## Conclusion
 
@@ -513,90 +513,9 @@ In terms of learning technical skills, we learned how to work with live data fro
 
 Since our model has a 72% accuracy for test data, although the Oscars judges films, an inherently subjective process, this sugggests that there are distinctive quantitative trends that can be modeled to determine an Oscar winner. It is also important to note our limitations, such as the available variables and creating a general model to win any Oscar, versus a specific category. 
 
-In the future, we plan to normalize the revenue variable to account for inflation and create category-specific models in order to increase accuracy. Finding more data sets which can provide more variables, such as a way to quantify the success and fame of cast members and the director could also help create more complex models.
+In the future, we plan to normalize the revenue variable to account for inflation and create category-specific models in order to increase accuracy. Finding more data sets which can provide more variables, such as a way to quantify the success and fame of cast members and the director could also help create more complex models. Additionally, finding data on non-nominated films may help further inform our question and model into a more generalizable result. 
 
 In conclusion, it is important to stay diligent in the way we consume and appraise media, and to understand the many factors which shape cultural arbiters like the Oscars. While the ceremony awards and celebrates the artistry of film, the Oscars also exist at the intersection of art, business, and culture, which continuously affect each other. Although the Oscars are primarily an American-focused film awards ceremony, it is still a global force of influence, especially as it has expanded to include recognize international films. Thus, their opinions impact audiences worldwide. While we enjoy the 2025 ceremony and the many more after, we can also interrogate the weight of the Academy's opinion on films. Although the artistic qualities of a film will continue to be immeasurable, our findings highlight distinct trends in quantifiable variables that challenge the role and implications of such an institution.
 
 
 ## References
-
-- cite packages, kaggle dataset (need to cite source of the kaggle data)
-
-
-
-1. Why should anyone care about this?
-
-Evaluating the media industry and the quality/replicability/authenticity of the media we consume 
-
-recent years in hollywood, (ex. writers' strike led to more reality tv, covid), is there more oscar baiting than usual, 
-- putting money into movies (expensive sound/visual effects, cgi, alist actors, etc), want to get it back... how do you get that money back?
-- is there a trend in what kind of movies people are making nowadays to get the money back (ex. more period pieces)
-- when are the "best" movies made? and what are the "best" movies
-- what movies are better
-- how much money do oscar nominees/wins make back? (in comparison to the budget)
-- how much is a win worth compared to a nomination?
-- classification model of who wins and who doesn't
-- predicting 2025 oscar winners / nominees
-
-
-overarching questions: who wins the oscars? (oscar formula and international movies), what is an oscar worth? (motivation), how true is our current idea of the oscar formula? (period pieces, big budget, released late in the year)
-
-- quantifying the Oscar formula
-- seeing trends in genres of winners/nominees since 1940s
-- sentiment analysis on descriptions to see if more positive/negative themes are more likely to win
-- genres
-- budget / revenue
-- release date (is it late in the year)
-- runtime
-- vote average / vote count
-- popularity
-
-- blockbuster vs oscar
-
-
-- run a random forest on who will win oscars (by category?)
-    - + sentiment analysis on overviews?
-    - preprocessing: split release date into year/month
-    - how many years of data do we wanna use and which categories?
-    - shiny app to make an interface where ppl can "predict" the winners(?)
-    - slider graphs
-- insights on budget/revenue/popularity/voteAve--> motivates why people wanna win an oscar
-
-
-
-
-2. What is the project about? Do not assume that your readers have any domain knowledge! The burden of explanation as to what you are talking about is on you! For example, if your project involves phylogenetic trees, do not assume that your audience has anything other than a basic, lay understanding of genetics.
-
-- 
-
-2. Where did your data come from? What kind of data was it? Is there a link to the data or some other way for the reader to follow up on your work? Be sure to cite / reference where your data came from!!
-
-- 
-
-3. What are your findings? What kind of statistical computations (if any) have you done to support those conclusions? Again, while the R code will show how the calculation was performed, it is up to you to interpret, in English sentences, the results of these calculations. Do not forget about units, axis labels, etc.
-
-4. What are the limitations of your work? Be clear so that others do not misinterpret your findings.
-
-
-5. To what population do your results apply? Do they generalize? Could your work be extended with more data or computational power or time to analyze? How could your study be improved? Suggesting plausible extensions don’t weaken your work – they strengthen it by connecting it to future work.
-
-- Population = Movies that are nominated for an Oscar Award, no as of now they do not generalize
-- With more data, we'd be able to understand more aspects of movies and come up with better model
-  - ability to investigate more aspects of the movie (e.g. data on the actors/directors/producers involved in the film)
-  - gathering data on movies that were NOT nominated would also be really helpful
-- Our study can be improved:
-  - 
-
-6. What ethical considerations that came about during the project. How were you or weren’t you able to address those issues?
-
-- questioning the authenticity of the media we consume and the media we consider to be "so good"
-- what does the academy think is a good movie?
-  -  the academy gets to dictate what the masses watch!
-- what movie gets to be guilded?
-
-7. What did you learn beyond what we’ve covered in class?
-
-- how to work with live data from API, API calls
-- how to create a fully publishable shiny app that works dynamically with data and API
--  
-
