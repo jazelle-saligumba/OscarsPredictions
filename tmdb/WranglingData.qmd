@@ -1,0 +1,130 @@
+The following is exploratory data wrangling, some of it was not used in the actual project but instead to help us explore the data loaded in LoadData.qmd. The relevant code in the following document that is required for the model is repeated in the RandomForest.qmd file. That said, this must be run before running the Visualizations.qmd file.
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(httr)
+```
+
+### Gathering stats about the list columns 
+(genre, production_countries, production_companies, spoken_languages)
+```{r}
+# Making each genre into a column
+# get the list of movie genres from API
+movie_list <- VERB("GET", 
+                   "https://api.themoviedb.org/3/genre/movie/list", 
+                   query = list(language = "en"), 
+                   add_headers('Authorization' = personal_authorization),
+                   content_type("application/octet-stream"), 
+                   accept("application/json"))
+movie_list_content <- content(movie_list, "parsed")
+
+# make the genres list into a data frame to refer to later on
+genres_list <- data.frame(
+  id = sapply(movie_list_content$genres, function(x) x$id),
+  name = sapply(movie_list_content$genres, function(x) x$name),
+  stringsAsFactors = FALSE
+)
+genres_dict <- setNames(genres_list$name, genres_list$id)
+```
+
+```{r}
+# finding common/top of genres, companies, countries, and languages
+movie_details_df$genre_ids <- map(movie_details_df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
+common_genres <- movie_details_df |>
+  unnest(genre_ids) |>
+  select(genre_ids) |>
+  group_by(genre_ids) |>
+  mutate(genre_ids = genres_dict[as.character(genre_ids)]) |> 
+  summarize(count_genres = n()) |>
+  arrange(desc(count_genres))
+
+common_companies <- all_data |>
+  unnest(production_companies) |>
+  select(production_companies) |>
+  group_by(production_companies) |>
+  summarize(count_company = n()) |>
+  arrange(desc(count_company))
+top_companies <- c(174, 4, 21, 25, 5)
+
+#top 5 languages 
+common_languages <- all_data |>
+  unnest(spoken_languages) |>
+  select(spoken_languages) |>
+  group_by(spoken_languages) |>
+  summarize(count_language = n()) |>
+  arrange(desc(count_language))
+top_languages <- c("English", "French", "German", "Spanish", "Italian")
+  
+# top 6 countries 
+common_countries <- all_data |>
+  unnest(production_countries) |>
+  select(production_countries) |>
+  group_by(production_countries) |>
+  summarize(count_country = n()) |>
+  arrange(desc(count_country))
+top_countries <- c("US", "GB", "FR",  "DE", "IT", "CA")
+```
+
+### Flattening the Data
+```{r}
+# function for adding genre columns
+wider_by_genre <- function(df) {
+  # make sure all values are vectors
+  df$genre_ids <- map(df$genre_ids, ~ if (is.list(.)) unlist(.) else .)
+    
+  # now, change all the number values to be genres(char)
+  new_df <- df |>
+    unnest(genre_ids) |> 
+    distinct() |>
+    mutate(genre_ids = genres_dict[as.character(genre_ids)]) |> 
+    mutate(valid_id = 1) |> # create binary value for the pivot_wider to use
+    pivot_wider(names_from = genre_ids, values_from = valid_id, 
+                values_fill = 0) # use names_prefix if want "genre_"
+  
+  return(new_df)
+}
+
+# testing the function above
+wide_genre_join_tmdb <- wider_by_genre(join_tmdb)
+```
+
+```{r}
+# more generic flattening of lists
+flatten_lists <- function(df, feature, top_vector, prefix) {
+  # make sure all values in the specified column are vectors
+  df[[feature]] <- map(df[[feature]], ~ if (is.list(.)) unlist(.) else .)
+  df$feature[is.null(df$feature)] <- NA
+
+  # now, change all the number values 
+  new_df <- df |> 
+    unnest({{feature}}) |>  # unnest the specified column
+    mutate(valid_value = 1, # create binary value for pivot_wider
+           temp_feature = case_when(
+             .data[[feature]] %in% top_vector ~ as.character(.data[[feature]]), 
+             TRUE ~ "Other")) |>  
+    select(-{{feature}}, -feature) |>
+    distinct() |>
+    pivot_wider(names_from = temp_feature, values_from = valid_value, 
+                names_prefix = prefix, values_fill = 0)
+  
+  return(new_df)
+}
+
+# testing this flattening 
+flatten_lists(fightclub, "production_countries", top_countries, "country_")
+flatten_lists(fightclub, "spoken_languages", top_languages, "lang_")
+#flatten_lists(fightclub, "production_companies", top_companies, "company_")
+```
+
+### Count Num. Nominations and Num Wins
+```{r}
+# count # of nominations and # of wins and make data compact
+all_data |>
+  group_by(film) |>
+  mutate(num_noms = n(),
+         num_wins = sum(ifelse(winner == "True", 1, 0))) |>
+  ungroup() |>
+  select(-category, -name, -winner) |>
+  distinct()
+```
