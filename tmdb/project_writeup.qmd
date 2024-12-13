@@ -34,7 +34,7 @@ For each film in this dataset, we used the [TMDB API](https://developer.themovie
 
 To set up authorization with the TMDB API, make an account and set the API key as an environment variable by creating a `.Renviron` file and listing the API key as below: 
 
-```{r} eval=False
+```{r eval=False}
 TMDB_API_KEY=YOURAPIKEY # No spaces or quotation marks!
 ```
 
@@ -52,8 +52,9 @@ response <- VERB("GET", url, add_headers('Authorization' =  personal_authorizati
                  content_type("application/octet-stream"), accept("application/json"))
 ```
 
-In order to get the movie data, we first had to make an API call to search for the movie in the TMDB databse and get its TMDB id. We search using the film name and year from the Oscar nominees dataset, then take the result with the highest popularity. We assume here movies that get nominated are much more popular than non-nominated movies.
+In order to get the movie data, we first had to make an API call to search for the movie in the TMDB database and get its TMDB id. We search using the film name and year from the Oscar nominees dataset, then take the result with the highest popularity. We assume here movies that get nominated are much more popular than non-nominated movies.
 
+The following function does exactly as described above, make an API call to retrieve an identified movie and then returns the movie with the highest popularity. 
 ```{r}
 # function to search for a movie by title and year
 search_movie <- function(auth, movie_title, year) {
@@ -92,12 +93,14 @@ search_movie <- function(auth, movie_title, year) {
 }
 ```
 
+We now try this on an example movie: Parasite to exhibit the information that is returned:
 ```{r}
 # Example: Search for Parasite
 parasite <- search_movie(personal_authorization, "Parasite", 2020)
 print(parasite)
 ```
 
+We then applied this function to all observations in the Oscar nominations dataset to get our initial dataframe. 
 ```{r echo = FALSE, eval = FALSE} 
 # Get ids for every observation in the Oscar nominations dataset
 movie_details <- apply(oscar_nominees, 1, function(row) {
@@ -110,7 +113,7 @@ movie_details_df <- do.call(rbind, movie_details)
 movie_details_df
 ```
 
-Now that we have the movie's TMDB id, we can make another API call to get its full details. 
+Now that we have the all of the movies' TMDB id, we can make another API call to get more details about the movie including its spoken language, budget, revenue, etc. The following function uses a given movie's TMDB id to retrieve more detailed information on each movie.
 
 ```{r} 
 search_movie_extra <- function(auth, movie_id, fields) {
@@ -151,17 +154,20 @@ search_movie_extra <- function(auth, movie_id, fields) {
 }
 ```
 
+More specifically, we wanted to retrieve the following columns/data to utilize later.
 ```{r}
 # Define fields to search for
 input_fields <- c("adult", "backdrop_path", "belongs_to_collection", "budget", "genres", "homepage", "id", "imdb_id", "original_language", "original_title", "overview", "popularity", "poster_path", "production_companies", "production_countries", "release_date", "revenue", "runtime", "spoken_languages", "status", "tagline", "title", "video", "vote_average", "vote_count")
 ```
 
+Hence, we have all of the qualities of the function necessary to retrieve this data! For example we can run this function to get extra details on Fightclub:
 ```{r}
 # Example: Get details for Fightclub
 fightclub <- search_movie_extra(personal_authorization, 550, input_fields)
 print(fightclub)
 ```
 
+Now that we understand it works, we can run this function for every unique movie that appeared in our initial dataset
 ```{r echo = FALSE, eval = FALSE} 
 # Get details for every movie in the Oscars nominees dataset
 movie_data <- map_df(unique(movie_details_df$id), 
@@ -173,9 +179,14 @@ movie_data <- map_df(unique(movie_details_df$id),
 movie_data$release_year = as.integer(substr(movie_data$release_date, 1, 4))
 movie_data$release_month = as.integer(substr(movie_data$release_date, 6, 7))
 ```
+So now we have all of the details needed to analyze the Oscar and movie data!
 
-Once we have all of the details for each of the movies, we can merge this data with our original Oscar nominees data. 
-```{r echo = FALSE, eval = FALSE}
+### Data Wrangling
+
+Now, we have all of the data necessary for us to pursue our project goal. That said, the data doesn't exactly come in a simple form for us to easily use in data visualization and in building a model. So, we have to transform it a bit. 
+
+First, we want to combine our datasets into one, easily manageable dataframe. So, we join by the film name and since we found some slight discrepencies in the year of release of some films, we accounted for a buffer of 1 in year. Joining this data creates a data frame where each row represents a movie nominated for a specific category of a given year. So, there are repeats of movies since many movies are nominated for several different categories. Note that in the following code we also created a new column called `won_at_least_one` which helps us to track whether a movie won an oscar, even if it wasn't necessarily in the category that the observation belongs to. 
+```{r eval = FALSE}
 all_data <- left_join(oscar_nominees, movie_data, by = c("film" = "title")) |>
   filter(abs(year_film - release_year) <= 1) |>
   group_by(film, year_film) |>
@@ -183,18 +194,27 @@ all_data <- left_join(oscar_nominees, movie_data, by = c("film" = "title")) |>
   ungroup()
 ```
 
-## Visualizations
+Our next hurdle was the fact that many columns in the dataset (including `genre_ids`, `production_countries`, and `spoken_languages`) were columns of lists. For example, in order to get the genre of a given observation, you could not just call `obs$genre_ids` because that could return to you a list of genre_ids associated with that given observation. Additionally (specifically for the genre variable), the vector initially came encoded as an integer vector (where the integers mapped to a specific genre). So, in order to handle this, we created a function to widen the dataset by genre, where a new binary column was made for each possible genre indicating whether or not the movie classified as that genre. 
 
-- q4, q5
+```{r echo=FALSE}
+# get the list of movie genres from API
+movie_list <- VERB("GET", 
+                   "https://api.themoviedb.org/3/genre/movie/list", 
+                   query = list(language = "en"), 
+                   add_headers('Authorization' = personal_authorization),
+                   content_type("application/octet-stream"), 
+                   accept("application/json"))
+movie_list_content <- content(movie_list, "parsed")
 
-## Random Forest
-
-- q4, q5
-
-As we saw in the above visualizations, there are definitely trends in what kind of movies get nominated for Oscars. The next question we wanted to answer was whether we could train a random forest model to be able to predict which of those nominees actually wins the Oscar. 
-
-To use our data, we first had to do some preprocessing. In particular, we wanted to predict on the information in the `genres`, `production_countries`, and `spoken_languages` columns, but these columns were in a list format, so we widened our dataset by turning those columns into multiple binary columns. We created a new binary column for each genre, and for the top 5 production countries and top 5 spoken languages. We also included an `other` column for movies that had a non-top 5 production country or spoken language.
-
+# make the genres list into a data frame to refer to later on
+genres_list <- data.frame(
+  id = sapply(movie_list_content$genres, function(x) x$id),
+  name = sapply(movie_list_content$genres, function(x) x$name),
+  stringsAsFactors = FALSE
+)
+genres_dict <- setNames(genres_list$name, genres_list$id)
+```
+The following, `wider_by_genre` does exactly as explained and mutates the column names to be decoded into their string representations. 
 ```{r}
 # function for unnesting genre list columns
 wider_by_genre <- function(df) {
@@ -213,7 +233,10 @@ wider_by_genre <- function(df) {
   
   return(new_df)
 }
+```
 
+The `production_countries` and `spoken_languages` columns had a similar format of list, but we did not need to decode its value names. The following function `flatten_lists` does exactly as described, widening the data so we did not have to worry about handling lists any longer. Additionally included in the following code is the idea of `top_vector`. The motivation for and explanation of this will be described in the Random Forest section. 
+```{r}
 # more generic flattening of lists
 flatten_lists <- function(df, feature, top_vector, prefix) {
   # make sure all values in the specified column are vectors
@@ -234,11 +257,120 @@ flatten_lists <- function(df, feature, top_vector, prefix) {
   
   return(new_df)
 }
-top_countries <- c("US", "GB", "FR",  "DE", "IT", "CA")
-top_languages <- c("English", "French", "German", "Spanish", "Italian")
-top_companies <- c(174, 4, 21, 25, 5)
 ```
 
+## Visualizations
+
+- q4, q5
+
+Now that we have wrangled the data to be in a form that we can easily work with. We look to do some data analyzation. Motivated by this idea of oscar baiting, we initially wanted to look at the characteristics that were specifically listed as elements of oscar baiting. More specifically, the traits that we had data on included Genre, Budget, and Release Date. 
+
+Since the first notion of "oscar baiting" was in 1978 ("The Deet Hunter"), we decided to use data from the last 50 years of the Oscars to analyze the trends of a possible oscar baiting phenomena. 
+```{r echo=FALSE}
+# pre-processing data frame to use for graphs
+graph_data_pre75 <- all_data |>
+  filter(year_ceremony >= 1975) |>
+  mutate(genre_ids = genres,
+         release_day_val = as.double(paste0(substr(release_date,6,7),".", substr(release_date,9,10)))) |>
+  select(-spoken_languages, -production_countries, -production_companies, 
+         -belongs_to_collection, -genres)
+```
+
+Specifically, we firstlooked at the year 2024 and the movies that were nominated for the 2024 Oscars (ie. they were 2023 films). It is notable how dominant the Drama category is among all of these movies, both in overall nominations and in winners. Additionally, following behind are historical films. Note that these results are consistent with a category of oscar baiting being a dramatic, historical period piece. 
+```{r echo=FALSE}
+# graphing the genre data (one year, all categories)
+graph_genre_one_year <- function(selected_year){
+  graph_data_pre75$winner <- factor(graph_data_pre75$winner, levels = c("True", "False"))
+  
+  graph_data_pre75 |>
+    filter(year_ceremony == selected_year) |>
+    unnest(genre_ids) |>
+    distinct() |>
+    mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
+    ggplot(aes(x = genre_ids, fill = winner, alpha = winner)) + 
+    geom_bar(position = "stack") +
+    theme_minimal() + 
+    xlab("Genre") + 
+    ylab("Count") + 
+    scale_fill_manual(values = c("False" = "black", "True" = "#af9150")) + 
+    scale_alpha_manual(values = c("False" = 0.9, "True" = 1)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title = element_text(color = "black", face = "bold"), # Dark and bold axis titles
+          axis.text = element_text(color = "black"))                # Dark axis text)
+}
+graph_genre_one_year(2024)
+```
+
+Now that we can acknowledge there is definitely some type of commonality between oscar nominees/winners, we can also look at these variables/traits over time to see how these trends have progressed throughout the years of the Oscars. So as to not make the graph too convoluted, we filtered the following graphs to only consist of nominees/winners of the "Best Picture" category over the last 50 years. 
+```{r echo=FALSE}
+# graphing the release date data (all years, one category)
+graph_all_years <- function(feature, x_axis, y_axis){
+  graph_data_pre75 |>
+    filter(category == "BEST PICTURE") |>
+    ggplot(aes(x = year_film, y = !!sym(feature), color = winner, alpha = winner)) +
+    geom_jitter(position = position_jitter(height = 0.1),
+                size = 2) + 
+    xlab(x_axis) + 
+    ylab(y_axis) + 
+    scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
+    scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
+    theme_minimal() + 
+    theme(axis.title = element_text(color = "black", face = "bold"), # Dark and bold axis titles
+          axis.text = element_text(color = "black"))
+}
+```
+
+The following graph exhibits nominations over the years in terms of release day. As we can tell, while in 1975 release day of films were generally very scattered, as years passed, films nominated for "Best Picture" definitely showed a tendency of being released later in the year, around the time of the cutoff of movies for Oscar nominations. 
+```{r echo=FALSE}
+graph_all_years("release_day_val", "Year", "Release Day (month.day)")
+```
+
+Similarly, the following plot shows nominations over the years in terms of budget. Note that the budget data is not normalized. Though this trend is not as significantly obvious as the previous two, we still continue to see a trend of nominated films having a higher and higher budget (meaning higher production) for a movie.
+```{r echo=FALSE}
+graph_all_years("budget", "Year", "Budget")
+```
+**It is important to note that these visualizations are not entirely accurate as they may have some corrupted values due to IMDB being a user informed site. For example, there is a movie called "Taxi Driver" that is listed as having a budget of about 600 million dollars (observation seen in the top left corner of the graph above) whereas its real budget is somewhere closer to about 2 million dollars.
+
+From all of these visualizations, we were able to understand and convince ourselves that oscar baiting is honestly a very real phenomena. That is, many Oscar nominated (and awarded) films have oddly similar traits in regards to their genre, budget, and release day of the year.
+
+## Random Forest
+
+- q4, q5
+
+As we saw in the above visualizations, there are definitely trends in what kind of movies get nominated for Oscars. The next question we wanted to answer was whether we could train a random forest model to be able to predict which of those nominees actually wins the Oscar. 
+
+To use our data, we first had to do some preprocessing. Much of this preprocessing was done prior (details in the data wrangling section) but more specifically, making this data more feedable to a random forest was essential. In order to do this, we decided to add the `top_vector` variable in our `flatten_lists` function. The purpose of this variable was to help make a column for only the top 5 or 6 features of `spoken_languages` and `production countries`. That is, we created a new binary column for only the top 6 (most-occuring) production companies and the top 5 (most-occurring) spoken languages and for all movies that did not have a highly occuring production country or spoken language, we classified their country and language as "other".
+
+The motivation behind this was to simplify the dataset that we hoped to feed our random forest model enough so that it would not be thrown off by any outliers. 
+
+The following vectors contain the countries and languages that we found to be most-occurring. 
+```{r echo=FALSE}
+# how we found the most-common/top production countries and spoken languages
+#top 5 languages 
+common_languages <- all_data |>
+  unnest(spoken_languages) |>
+  select(spoken_languages) |>
+  group_by(spoken_languages) |>
+  summarize(count_language = n()) |>
+  arrange(desc(count_language))
+top_languages <- c("English", "French", "German", "Spanish", "Italian")
+  
+# top 6 countries 
+common_countries <- all_data |>
+  unnest(production_countries) |>
+  select(production_countries) |>
+  group_by(production_countries) |>
+  summarize(count_country = n()) |>
+  arrange(desc(count_country))
+top_countries <- c("US", "GB", "FR",  "DE", "IT", "CA")
+```
+
+```{r}
+top_countries <- c("US", "GB", "FR",  "DE", "IT", "CA")
+top_languages <- c("English", "French", "German", "Spanish", "Italian")
+```
+
+Now, we apply all of this data preprocessing to render a dataframe that the random forest will easily be able to understand and work with. 
 ```{r Data Preprocessing, eval = FALSE}
 # preprocess data for nominees since 1975
 rf_data <- all_data |>
@@ -257,6 +389,7 @@ rf_data <- all_data |>
 rf_data <- readRDS("rf_data.rds")
 ```
 
+In addition to flattening the lists, we made sure to get rid of any and all information that we did not want to use as predictors. For instance, any identifiers and repetitive data is what we got rid of. 
 ```{r Data Preprocessing 2}
 rf_data <- rf_data |>
   mutate(won_at_least_one = as.factor(won_at_least_one))
@@ -268,7 +401,7 @@ rf_data <- rf_data |>
          -adult, -backdrop_path, -homepage, -id, -imdb_id, -original_title, -overview, -poster_path, -release_date, -status, -tagline, -video, -original_language)
 ```
 
-Now that our data has been preprocessed, we are ready to train a model. We also perform cross-validation on the `mtry`, `trees`, and `min_n` parameters. 
+Now that our data has been preprocessed, we are ready to train a model. Keep in mind that our model will be predicting the variable `won_at_least_one`. Again, since we adjusted the dataset earlier to account for any model that won at least one Oscar award, the model will be predicting whether or not it will win *any* award. We also perform cross-validation on the `mtry`, `trees`, and `min_n` parameters. 
 
 ```{r Training a Random Forest}
 library(tidymodels)
@@ -348,6 +481,8 @@ conf_matrix
 
 We observe that our model has a 72% accuracy rate on our test data. From our confusion matrix, we see that the true positive rate is 74% and the true negative rate is 94%. Note that there are much fewer movies that win Oscars than are nominated, so as seen in the confusion matrix, there are much more "False" observations in our data than "True" observations, causing the skew towards "False". 
 
+Additionally, we note that our model is limited by the fact that it was trained on data/observations of which were *all nominated* for an Oscar. That is to say that our model is quite uninformed on all of the qualities of movies that are not nominated, and hence cannot distinguish exactly what makes a winner a *true* winner. Further, in our Shiny app, when you "predict" if a movie is going to win an Oscar, it is likely going to be False a significant more amount since it is likely being fed movies that have not yet been recognized as an Oscar nominee. 
+
 ## Ethical Considerations
 
 - q6
@@ -413,17 +548,8 @@ overarching questions: who wins the oscars? (oscar formula and international mov
 
 3. What are your findings? What kind of statistical computations (if any) have you done to support those conclusions? Again, while the R code will show how the calculation was performed, it is up to you to interpret, in English sentences, the results of these calculations. Do not forget about units, axis labels, etc.
 
-- Oscar bait is lowkey real! 
-  - release day is later in the year
-  - genres to be released are often genre, historical pieces
-
 4. What are the limitations of your work? Be clear so that others do not misinterpret your findings.
 
-- Our work is limited by the fact that we do not account for movies that were not recognized as an Oscar nominee
-  - hence, we don't have a third dataset/column that tells us qualities of movies that are not nominated. 
-  - so our RF, that is predicting movies that have yet to be nominated is heavily limited.
-- API has some corrupted values (e.g. budget may be incorrect and genre is interpreted) since it is user informed
-- 
 
 5. To what population do your results apply? Do they generalize? Could your work be extended with more data or computational power or time to analyze? How could your study be improved? Suggesting plausible extensions don’t weaken your work – they strengthen it by connecting it to future work.
 
