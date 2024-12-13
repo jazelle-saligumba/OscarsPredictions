@@ -34,13 +34,13 @@ function(input, output, session) {
       ggplot(aes(x = genre_ids, fill = winner, alpha = winner)) + 
       geom_bar(position = "stack") +
       theme_minimal() + 
+      xlab("Genre") + 
+      ylab("Count") + 
       scale_fill_manual(values = c("False" = "black", "True" = "#af9150")) + 
       scale_alpha_manual(values = c("False" = 0.9, "True" = 1)) +
       theme(axis.text.x = element_text(angle = 45, hjust = 1),
-            axis.title = element_text(size = 16, color = "black", face = "bold"), # Dark and bold axis titles
-            axis.text = element_text(size = 12, color = "black"),
-            legend.text = element_text(size = 12,  color = "black"), # Legend text font size
-            legend.title = element_text(size = 16,  color = "black", face = "bold"))                # Dark axis text)
+            axis.title = element_text(color = "black", face = "bold"), # Dark and bold axis titles
+            axis.text = element_text(color = "black"))                # Dark axis text)
   }
   
   # graphing the genre data (all years, one category)
@@ -52,46 +52,45 @@ function(input, output, session) {
       mutate(genre_ids = genres_dict[as.character(genre_ids)]) |>
       ggplot(aes(x = year_film, y = genre_ids, color = winner, alpha = winner)) + 
       geom_jitter(position = position_jitter(width = 0.1, height = 0.2),
-                  size = 3) +
+                  size = 2) +
+      xlab("Year") + 
+      ylab("Genre") + 
       scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
       scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
       theme_minimal() + 
-      theme(axis.title = element_text(size = 16, color = "black", face = "bold"), # Dark and bold axis titles
-            axis.text = element_text(size = 12, color = "black"),
-            legend.text = element_text(size = 12,  color = "black"), # Legend text font size
-            legend.title = element_text(size = 16,  color = "black", face = "bold"))    
+      theme(axis.title = element_text(color = "black", face = "bold"), # Dark and bold axis titles
+            axis.text = element_text(color = "black"))
   }
   
   # graphing the release, budget data (one year, all categories) 
-  graph_one_year_scatter <- function(feature, selected_year) {
+  graph_one_year_scatter <- function(feature, selected_year, x_axis, y_axis) {
     graph_data_pre75 |>
       filter(year_ceremony == selected_year) |>
       ggplot(aes(x = !!sym(feature), y = 0, color = winner, alpha = winner)) +
       geom_jitter(position = position_jitter(height = 0.1),
-                  size = 3) + 
+                  size = 2) + 
+      xlab(x_axis) + 
       scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
       scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
       theme_minimal() + 
-      theme(axis.title = element_text(size = 16, color = "black", face = "bold"), # Dark and bold axis titles
-            axis.text = element_text(size = 12, color = "black"),
-            legend.text = element_text(size = 12,  color = "black"), # Legend text font size
-            legend.title = element_text(size = 16,  color = "black", face = "bold"))    
+      theme(axis.title = element_text(color = "black", face = "bold"), # Dark and bold axis titles
+            axis.text = element_text(color = "black"))
   }
   
   # graphing the release, budget data (all years, one category)
-  graph_all_years <- function(feature){
+  graph_all_years <- function(feature, x_axis, y_axis){
     graph_data_pre75 |>
       filter(category == "BEST PICTURE") |>
       ggplot(aes(x = year_film, y = !!sym(feature), color = winner, alpha = winner)) +
       geom_jitter(position = position_jitter(height = 0.1),
-                  size = 3) + 
+                  size = 2) + 
+      xlab(x_axis) + 
+      ylab(y_axis) + 
       scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
       scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
       theme_minimal() + 
-      theme(axis.title = element_text(size = 16, color = "black", face = "bold"), # Dark and bold axis titles
-            axis.text = element_text(size = 12, color = "black"),
-            legend.text = element_text(size = 12,  color = "black"), # Legend text font size
-            legend.title = element_text(size = 16,  color = "black", face = "bold"))    
+      theme(axis.title = element_text(color = "black", face = "bold"), # Dark and bold axis titles
+            axis.text = element_text(color = "black"))
   }
   
   
@@ -124,10 +123,10 @@ function(input, output, session) {
         graph_genre_all_years()
         
       } else if (input$variable == "release_day"){
-        graph_all_years("release_day_val")
+        graph_all_years("release_day_val", "Year", "Release Day (month.day)")
         
       } else if (input$variable == "budget"){
-        graph_all_years("budget")
+        graph_all_years("budget", "Year", "Budget")
         
       }
     } else if (input$timeframe == "One Year, All Categories") {
@@ -137,10 +136,10 @@ function(input, output, session) {
         graph_genre_one_year(selected_year())
         
       } else if (input$variable == "release_day"){
-        graph_one_year_scatter("release_day_val", selected_year())
+        graph_one_year_scatter("release_day_val", selected_year(), "Release Day (month.day)", "")
         
       } else if (input$variable == "budget"){
-        graph_one_year_scatter("budget", selected_year())
+        graph_one_year_scatter("budget", selected_year(), "Budget", "")
       }
     }
   })

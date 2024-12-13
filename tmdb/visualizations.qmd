@@ -1,5 +1,11 @@
 ### Graphing Data (regarding the Oscar Formula)
 ```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+```
+
+```{r}
 # pre-processing data frame to use for graphs
 graph_data_pre75 <- all_data |>
   filter(year_ceremony >= 1975) |>
@@ -26,6 +32,8 @@ graph_genre_one_year <- function(selected_year){
     ggplot(aes(x = genre_ids, fill = winner, alpha = winner)) + 
     geom_bar(position = "stack") +
     theme_minimal() + 
+    xlab("Genre") + 
+    ylab("Count") + 
     scale_fill_manual(values = c("False" = "black", "True" = "#af9150")) + 
     scale_alpha_manual(values = c("False" = 0.9, "True" = 1)) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
@@ -46,6 +54,8 @@ graph_genre_all_years <- function(){
     ggplot(aes(x = year_film, y = genre_ids, color = winner, alpha = winner)) + 
     geom_jitter(position = position_jitter(width = 0.1, height = 0.2),
                 size = 2) +
+    xlab("Year") + 
+    ylab("Genres") + 
     scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
     scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
     theme_minimal() + 
@@ -56,20 +66,23 @@ graph_genre_all_years()
 ```
 
 ```{r}
-graph_one_year_scatter <- function(feature, selected_year) {
+graph_one_year_scatter <- function(feature, selected_year, x_axis, y_axis) {
     graph_data_pre75 |>
       filter(year_ceremony == selected_year) |>
       ggplot(aes(x = !!sym(feature), y = 0, color = winner, alpha = winner)) +
       geom_jitter(position = position_jitter(height = 0.1),
                   size = 2) + 
+      xlab(x_axis) + 
       scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
       scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
       theme_minimal() + 
       theme(axis.title = element_text(color = "black", face = "bold"), # Dark and bold axis titles
             axis.text = element_text(color = "black"))
   }
-graph_one_year_scatter("budget", 2020)
+graph_one_year_scatter("budget", 2020, "Budget", "")
+graph_one_year_scatter("release_day_val", 2020, "Release Day (month.day)", "")
 ```
+
 ```{r}
 graph_one_year_box <- function(feature, selected_year){
   graph_data_pre75 |>
@@ -84,19 +97,21 @@ graph_one_year_box("budget", 2020)
 
 ```{r}
 # graphing the release date data (all years, one category)
-graph_all_years <- function(feature){
+graph_all_years <- function(feature, x_axis, y_axis){
   graph_data_pre75 |>
     filter(category == "BEST PICTURE") |>
     ggplot(aes(x = year_film, y = !!sym(feature), color = winner, alpha = winner)) +
     geom_jitter(position = position_jitter(height = 0.1),
                 size = 2) + 
+    xlab(x_axis) + 
+    ylab(y_axis) + 
     scale_color_manual(values = c("True" = "#af9150", "False" = "black")) + 
     scale_alpha_manual(values = c("True" = 1, "False" = 0.47)) +
     theme_minimal() + 
     theme(axis.title = element_text(color = "black", face = "bold"), # Dark and bold axis titles
           axis.text = element_text(color = "black"))
 }
-graph_all_years("release_day_val")
-graph_all_years("budget")
+graph_all_years("release_day_val", "Year", "Release Day (month.day)")
+graph_all_years("budget", "Year", "Budget")
 ```
 
