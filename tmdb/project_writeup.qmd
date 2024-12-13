@@ -193,7 +193,7 @@ movie_data <- map_df(unique(movie_details_df$id),
 movie_data$release_year = as.integer(substr(movie_data$release_date, 1, 4))
 movie_data$release_month = as.integer(substr(movie_data$release_date, 6, 7))
 ```
-So now we have all of the details needed to analyze the Oscar and movie data!
+So now that we have all of the details needed to analyze the Oscar and movie data, it is a good time to talk about our actual data. As mentioned before, at this point in the process, we have two datasets: one providing detailed information on and characteristics about movies and one providing insights on how movies performed at the Oscars. So, when we join these two datasets (in the Data Wrangling section below), our data will only consist of movies that *have been nominated* for an Oscar. That is to say, that any insights we retrieve from the following data analysis may only be applied to the population of Oscar nominees. 
 
 ## Data Wrangling
 
@@ -275,11 +275,9 @@ flatten_lists <- function(df, feature, top_vector, prefix) {
 
 ## Visualizations
 
-- q4, q5
-
 Now that we have wrangled the data to be in a form that we can easily work with. We look to do some data analyzation. Motivated by this idea of oscar baiting, we initially wanted to look at the characteristics that were specifically listed as elements of oscar baiting. [@franklin_3_2019] More specifically, the traits that we had data on included Genre, Budget, and Release Date. 
 
-Since the first notion of "oscar baiting" was in 1978 ("The Deet Hunter"), we decided to use data from the last 50 years of the Oscars to analyze the trends of a possible oscar baiting phenomena. 
+Since the first notion of "oscar baiting" was in 1978 ("The Deer Hunter"), we decided to use data from the last 50 years of the Oscars to analyze the trends of a possible oscar baiting phenomena. Note, once again, all of the analysis done below is based on *Oscar nominated* films and so conclusions or observations may *not* be generalized to the entire population of films. 
 
 ```{r echo=FALSE}
 all_data <- readRDS("all_data.rds")
@@ -355,8 +353,6 @@ graph_all_years("budget", "Year", "Budget")
 From all of these visualizations, we were able to understand and convince ourselves that oscar baiting is a very real phenomena. That is, many Oscar nominated (and awarded) films have oddly similar traits in regards to their genre, budget, and release day of the year.
 
 ## Random Forest
-
-- q4, q5
 
 As we saw in the above visualizations, there are definitely trends in what kind of movies get nominated for Oscars. The next question we wanted to answer was whether we could train a random forest model to be able to predict which of those nominees actually wins the Oscar. 
 
