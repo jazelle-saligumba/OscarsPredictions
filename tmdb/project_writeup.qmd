@@ -270,7 +270,7 @@ rf_data <- rf_data |>
 
 Now that our data has been preprocessed, we are ready to train a model. We also perform cross-validation on the `mtry`, `trees`, and `min_n` parameters. 
 
-```{r Training a Random Forest, eval = FALSE}
+```{r Training a Random Forest}
 library(tidymodels)
 
 # Partition data into train / test sets
@@ -316,7 +316,7 @@ select_best(movie_rf_tune, metric = "accuracy")
 
 After performing CV, we can select the best model and finalize it.
 
-```{r Finalize Model, eval = FALSE}
+```{r Finalize Model}
 movie_rf_best <- finalize_model(
   movie_rf,
   select_best(movie_rf_tune, metric = "accuracy"))
@@ -332,7 +332,7 @@ movie_rf_final
 
 Now that we have finalized our model, we can predict on our test data to see how well our model does on unseen data. 
 
-```{r Test Accuracy, eval = FALSE}
+```{r Test Accuracy}
 # Test on testing data
 preds <- movie_rf_final |>
   predict(new_data = movie_test) |>
