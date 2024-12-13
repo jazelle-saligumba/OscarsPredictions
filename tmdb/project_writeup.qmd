@@ -268,6 +268,11 @@ flatten_lists <- function(df, feature, top_vector, prefix) {
 Now that we have wrangled the data to be in a form that we can easily work with. We look to do some data analyzation. Motivated by this idea of oscar baiting, we initially wanted to look at the characteristics that were specifically listed as elements of oscar baiting. More specifically, the traits that we had data on included Genre, Budget, and Release Date. 
 
 Since the first notion of "oscar baiting" was in 1978 ("The Deet Hunter"), we decided to use data from the last 50 years of the Oscars to analyze the trends of a possible oscar baiting phenomena. 
+
+```{r echo=FALSE}
+all_data <- readRDS("all_data.rds")
+```
+
 ```{r echo=FALSE}
 # pre-processing data frame to use for graphs
 graph_data_pre75 <- all_data |>
