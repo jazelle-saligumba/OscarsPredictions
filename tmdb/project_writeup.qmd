@@ -275,9 +275,9 @@ flatten_lists <- function(df, feature, top_vector, prefix) {
 
 ## Visualizations
 
-Now that we have wrangled the data to be in a form that we can easily work with. We look to do some data analyzation. Motivated by this idea of oscar baiting, we initially wanted to look at the characteristics that were specifically listed as elements of oscar baiting. [@franklin_3_2019] More specifically, the traits that we had data on included Genre, Budget, and Release Date. 
+Now that we have wrangled the data to be in a form that we can easily work with. We look to do some data analyzation. Motivated by this idea of Oscar baiting, we initially wanted to look at the characteristics that were specifically listed as elements of Oscar baiting. [@franklin_3_2019] More specifically, the traits that we had data on included Genre, Budget, and Release Date. 
 
-Since the first notion of "oscar baiting" was in 1978 ("The Deer Hunter"), we decided to use data from the last 50 years of the Oscars to analyze the trends of a possible oscar baiting phenomena. Note, once again, all of the analysis done below is based on *Oscar nominated* films and so conclusions or observations may *not* be generalized to the entire population of films. 
+Since the first notion of "Oscar baiting" was in 1978 ("The Deer Hunter"), we decided to use data from the last 50 years of the Oscars to analyze the trends of a possible Oscar baiting phenomena. Note, once again, all of the analysis done below is based on *Oscar nominated* films and so conclusions or observations may *not* be generalized to the entire population of films. 
 
 ```{r echo=FALSE}
 all_data <- readRDS("all_data.rds")
@@ -295,7 +295,7 @@ graph_data_pre75 <- all_data |>
 ```
 [@ggplot2]
 
-Specifically, we firstlooked at the year 2024 and the movies that were nominated for the 2024 Oscars (ie. they were 2023 films). It is notable how dominant the Drama category is among all of these movies, both in overall nominations and in winners. Additionally, following behind are historical films. Note that these results are consistent with a category of oscar baiting being a dramatic, historical period piece. 
+Specifically, we firstlooked at the year 2024 and the movies that were nominated for the 2024 Oscars (ie. they were 2023 films). It is notable how dominant the Drama category is among all of these movies, both in overall nominations and in winners. Additionally, following behind are historical films. Note that these results are consistent with a category of Oscar baiting being a dramatic, historical period piece. 
 ```{r echo=FALSE}
 # graphing the genre data (one year, all categories)
 graph_genre_one_year <- function(selected_year){
@@ -320,7 +320,7 @@ graph_genre_one_year <- function(selected_year){
 graph_genre_one_year(2024)
 ```
 
-Now that we can acknowledge there is definitely some type of commonality between oscar nominees/winners, we can also look at these variables/traits over time to see how these trends have progressed throughout the years of the Oscars. So as to not make the graph too convoluted, we filtered the following graphs to only consist of nominees/winners of the "Best Picture" category over the last 50 years. 
+Now that we can acknowledge there is definitely some type of commonality between Oscar nominees/winners, we can also look at these variables/traits over time to see how these trends have progressed throughout the years of the Oscars. So as to not make the graph too convoluted, we filtered the following graphs to only consist of nominees/winners of the "Best Picture" category over the last 50 years. 
 ```{r echo=FALSE}
 # graphing the release date data (all years, one category)
 graph_all_years <- function(feature, x_axis, y_axis){
@@ -350,7 +350,7 @@ graph_all_years("budget", "Year", "Budget")
 ```
 **It is important to note that these visualizations are not entirely accurate as they may have some corrupted values due to IMDB being a user informed site. For example, there is a movie called "Taxi Driver" that is listed as having a budget of about 600 million dollars (observation seen in the top left corner of the graph above) whereas its real budget is somewhere closer to about 2 million dollars.
 
-From all of these visualizations, we were able to understand and convince ourselves that oscar baiting is a very real phenomena. That is, many Oscar nominated (and awarded) films have oddly similar traits in regards to their genre, budget, and release day of the year.
+From all of these visualizations, we were able to understand and convince ourselves that Oscar baiting is a very real phenomena. That is, many Oscar nominated (and awarded) films have oddly similar traits in regards to their genre, budget, and release day of the year.
 
 ## Random Forest
 
@@ -501,11 +501,15 @@ conf_matrix
 
 We observe that our model has a 72% accuracy rate on our test data. From our confusion matrix, we see that the true positive rate is 74% and the true negative rate is 94%. Note that there are much fewer movies that win Oscars than are nominated, so as seen in the confusion matrix, there are much more "False" observations in our data than "True" observations, causing the skew towards "False". 
 
-Additionally, we note that our model is limited by the fact that it was trained on data/observations of which were *all nominated* for an Oscar. That is to say that our model is quite uninformed on all of the qualities of movies that are not nominated, and hence cannot distinguish exactly what makes a winner a *true* winner. Further, in our Shiny app, when you "predict" if a movie is going to win an Oscar, it is likely going to be False a significant more amount since it is likely being fed movies that have not yet been recognized as an Oscar nominee. [@shiny]
+Additionally, we note that our model is limited by the fact that it was trained on data/observations of which were *all nominated* for an Oscar. That is to say that our model is quite uninformed on all of the qualities of movies that are not nominated, and hence cannot distinguish exactly what makes a winner a *true* winner. 
+
+We then put everything together in a [Shiny app](https://kellieau.shinyapps.io/OscarAnalyticsPredicts/) where users can explore past trends in who gets nominated for an Oscar and our model's future predictions of who will win the 2025 Oscars. With that said, it's important to note that in our Shiny app, when you "predict" if a movie is going to win an Oscar, it is likely going to be False a significant more amount since it is likely being fed movies that have not yet been recognized as an Oscar nominee. [@shiny]
 
 ## Ethical Considerations
 
 Though we are very proud of the model and analytics we created, that doesn't come without other considerations. In fact, the biggest implication of our model may be the very thing that we are critiquing. That is, creating a model that may predict an Oscar winner and hence that identifies probable qualities of an Oscar nominee/winner, may simply produce more film makers to latch on to the "Oscar bait" phenomena that has become so popular. Identifying the problem as we have done in this project could lead to more and more talk and consideration of the various qualities that produces an Oscar winning film; thus leading to a continuously more formulaic method of winning an Oscar. All in all, marking creativity in a quantitative manner, may in fact inhibit the quality of the media we consume.  
+
+Though we can't control how others use the information and tools that we are distributing through this project, we hope to effectively communicate that our purpose is for the audience, movie watchers, to consider the implications of being able to quantitatively model an awards ceremony meant to award the arts, a subjective and thus immeasurable category.
 
 ## Conclusion
 
