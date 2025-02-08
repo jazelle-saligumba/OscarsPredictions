@@ -2,7 +2,7 @@
 
 **[Shiny App](https://kellieau.shinyapps.io/OscarAnalyticsPredicts/)** 
 
-**[Slides on Results] (https://docs.google.com/presentation/d/13AwKeLGdH38_mfAHixFMGjnA145sTGgpchRszAdy0-M/edit#slide=id.g31e1ee9bb5f_3_953)**
+**[Slides on Results](https://docs.google.com/presentation/d/13AwKeLGdH38_mfAHixFMGjnA145sTGgpchRszAdy0-M/edit#slide=id.g31e1ee9bb5f_3_953)**
 
 The Academy Awards, known as the Oscars, have long been a defining force in Hollywood, shaping public perception of artistic achievement. Over time, the phenomenon of Oscar Bait—films designed to appeal to the Academy’s tastes—has raised questions about the authenticity of these awards. Factors such as a film’s genre, release timing, budget, and star-studded casts have been historically linked to Oscar success.
 
