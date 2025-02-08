@@ -10,10 +10,10 @@ The Academy Awards, known as the Oscars, have long been a defining force in Holl
 Motivated by the idea of Oscar Bait, our project explores the factors that contribute to a film winning an Academy Award. Using data-driven analysis and machine learning models, we examine measurable trends, such as revenue, budget, and genre, to determine the Academy’s preferences.
 
 ## Key Technical Skills:
-- Integrated live data from APIs for dynamic analysis
-- Built a fully functional Shiny app to visualize results
+- Integrated **live data from APIs** for dynamic analysis
+- Built a fully functional **Shiny app** to visualize results
 - Performed extensive data preprocessing & exploratory data analysis
-- Developed and trained a predictive model with 72% accuracy on test data
+- Developed and trained a predictive model with **72% accuracy** on test data
 - Key Findings & Future Work
 - Although the Oscars are inherently subjective, our model identifies clear quantitative trends that distinguish winners from nominees. 
 
