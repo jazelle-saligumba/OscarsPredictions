@@ -1,14 +1,23 @@
-# Quantifying the Oscar Formula
+# Predicting the Oscars: Analyzing Trends in Academy Award Winners
+The Academy Awards, known as the Oscars, have long been a defining force in Hollywood, shaping public perception of artistic achievement. Over time, the phenomenon of Oscar Bait—films designed to appeal to the Academy’s tastes—has raised questions about the authenticity of these awards. Factors such as a film’s genre, release timing, budget, and star-studded casts have been historically linked to Oscar success.
 
-The Academy Awards, colloquially known as the Oscars, are an iconic American cultural institution approaching its century-long anniversary. As a defining force in Hollywood, the arts, and the global audience it captivates, the Oscars have evolved into the foremost arbiter in determining which films are immortalized in history. Over time, the ceremony has come to shape not only the landscape of cinema but also public perception of artistic achievement. 
+## Project Overview
+Motivated by the idea of Oscar Bait, our project explores the factors that contribute to a film winning an Academy Award. Using data-driven analysis and machine learning models, we examine measurable trends, such as revenue, budget, and genre, to determine the Academy’s preferences.
 
-Since its inception, the Oscars have been accompanied by the phenomenon of 'Oscar Bait' — the idea that certain movies are intentionally created to appeal to the Academy's tastes in order to secure an Oscar. Factors such as a late release date, typically around the time of the Oscar submission deadline, being a drama, historical piece, or biopic, and featuring a star-studded cast and director are common traits in many Oscar-winning films [@Qingru_hooked_2021; @franklin_3_2019].
+## Key Technical Skills:
+Integrated live data from APIs for dynamic analysis
+Built a fully functional Shiny app to visualize results
+Performed extensive data preprocessing & exploratory data analysis
+Developed and trained a predictive model with 72% accuracy on test data
+Key Findings & Future Work
+Although the Oscars are inherently subjective, our model identifies clear quantitative trends that distinguish winners from nominees. 
 
-The Deer Hunter (1978) is cited as the first example of explicit Oscar Bait. Rather than first appealing to the masses to gain revenue, their strategy was to win an Oscar to catapult the movie to broad audiences and generate hype. The filmakers made deliberate choices in mind: mainly only showing the movie to those within the Academy and other high profile individuals for the minimum requirement of two weeks, having a famed ensemble and director, and a thematic focus on war, their efforts paid off, winning Best Picture for that year. Overall, it went on to gross $48.9 million overall. [@hofler_first_2010]
+### In the future, we aim to:
 
-Considering the Oscars has become the primary authority of American film taste, it is important to critically consider the media which we consume, and the people behind the Academy who decide what becomes gilded for the rest of time. As we explore what makes an Oscar Award winner versus a nominee, we question the authenticity of such wins, especially when there is a prominent trend of who wins an Oscar award, and the recorded phenomena of directors gaming the system to increase their odds to win one. In this chicken-and-egg situation of which came first, it is important to question if the winners may not purely be based on the film's artistic quality, but its features which cater to the Academy. 
-
-Motivated by the idea of Oscar Bait, our project aims to explore the factors that contribute to a film winning an Oscar. By using variables such as revenue, budget, and genres, we first seek to identify patterns that reveal the Academy's preferences. Although the concept of the Oscars is inherently qualitative to judge an art form, we question if the revealed qualitative trends are significant enough to determine a clear distinction between Oscar winners versus nominees. Ultimately, we question if the Academy's preferences to follow measurable trends are distinct enough to predict the outcomes of the 2025 ceremony. 
+Normalize revenue data for inflation adjustments
+Develop category-specific models for more precise predictions
+Incorporate new datasets to assess the impact of cast and director fame
+Ultimately, while artistic quality remains immeasurable, our findings challenge the extent to which Oscar outcomes follow predictable, data-driven patterns. With our 2025 Oscar predictions in hand, we invite others to question the intersection of art, business, and influence in shaping cinematic history.
 
 
 
